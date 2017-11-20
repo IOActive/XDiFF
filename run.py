@@ -4,12 +4,12 @@ import os
 import signal
 import sys
 import time
-import setting
+import classes.settings
 
 def dfuzz(settings):
 	if 'fuzz_category' not in settings:
 		help("The category was not specified.")
-	settings = setting.load_settings(settings)	# load the fuzzer settings
+	settings = classes.settings.load_settings(settings)	# load the fuzzer settings
 	if len(settings['software']) == 0:
 		help("There is no software associated to the category selected")
 
@@ -25,8 +25,8 @@ def dfuzz(settings):
 	for key in sorted(settings.iterkeys()):
  		settings['logger'].info("Setting %s: %s" % (key, str(settings[key])))
 
-	settings['monitor'].check_once()		# check before start if the canaries are in place
 	settings['queue'].start_web_server()	# load the webserver
+	settings['monitor'].check_once()		# check before start if the canaries are in place
 	total_testcases = settings['db'].count_testcases()
 	current_test = settings['db'].get_latest_id(settings['software'])
 	settings['logger'].info("Setting testcases: %s/%s" % (str(current_test), str(total_testcases)))
@@ -46,7 +46,7 @@ def dfuzz(settings):
 		remaining_tests = total_testcases - (current_test + settings['db_tests']) # Tests left
 		test_count += settings['db_tests']
 		rate = test_count/elapsed_time # Rate per second
-		time_left = remaining_tests/rate/60 # How much hours are left ?
+		time_left = remaining_tests/rate/60 # How many hours are left ?
 		settings['logger'].info("Tests " + str(current_test) + "-" + str(current_test + settings['db_tests']) + " - Set " + str(saved) + " (" + str(int(size/1024)) + " kb) - Took " + str(int(finish_time)) + "s - Avg Rate " + str(int(rate)*len(settings['software'])) + " - ETC " + str(int(time_left)) + "'")
 		settings['monitor'].check()
 		current_test += settings['db_tests']

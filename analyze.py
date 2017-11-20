@@ -1,13 +1,14 @@
 #!/usr/bin/env python
 import datetime
 import getopt
+import getpass
 import os
 #import profile
 import re
 import sys
 import time
-import setting
-from dump import Dump
+import classes.settings
+from classes.dump import Dump
 
 MAX = 999999999 # ridiculous high number to get all the occurrences of a function
 
@@ -74,7 +75,7 @@ class Analyze(object):
 
 		self.analyze_valgrind(output, toplimit)
 		self.analyze_username_disclosure(output, toplimit, username="root")
-		self.analyze_username_disclosure(output, toplimit, username="fear")
+		self.analyze_username_disclosure(output, toplimit, username=getpass.getuser())
 		self.analyze_canary_token_file(output, toplimit)
 		self.analyze_canary_token_code(output, toplimit)
 		self.analyze_remote_connection(output, toplimit)
@@ -119,8 +120,8 @@ class Analyze(object):
 		rows.append([["Valgrind References Found", str(results)]])
 		results = self.analyze_username_disclosure(None, MAX, "root")
 		rows.append([["Username 'root' Disclosure", str(results)]])
-		results = self.analyze_username_disclosure(None, MAX, "fear")
-		rows.append([["Username 'fear' Disclosure", str(results)]])
+		results = self.analyze_username_disclosure(None, MAX, getpass.getuser())
+		rows.append([["Username '" + getpass.getuser() + "' Disclosure", str(results)]])
 		results = self.analyze_canary_token_file(None, MAX)
 		rows.append([["Canary Token File Found", str(results)]])
 		results = self.analyze_canary_token_code(None, MAX)
@@ -483,13 +484,13 @@ class Analyze(object):
 
 	def analyze_top_elapsed_killed(self, output, toplimit):
 		"""Find which killed tests cases required more time"""
-		title = "Analyze Top Time Elapsed (and eventually killed) - analyzeTopElapsedKilled"
+		title = "Analyze Top Time Elapsed (and eventually killed) - analyze_top_elapsed_killed"
 		columns = ["Testcase", "Software", "Type", "OS", "Elapsed"]
 		if output:
 			self.settings['logger'].info(title)
 
 		rows = []
-		results = self.settings['db'].analyzeTopElapsed(True)
+		results = self.settings['db'].analyze_top_elapsed(True)
 		for result in results:
 			if toplimit is not None and len(rows) >= toplimit:
 				break
@@ -500,13 +501,13 @@ class Analyze(object):
 
 	def analyze_top_elapsed_not_killed(self, output, toplimit):
 		"""Find which not killed tests cases required more time"""
-		title = "Analyze Top Time Elapsed (but not killed) - analyzeTopElapsedNotKilled"
+		title = "Analyze Top Time Elapsed (but not killed) - analyze_top_elapsed_not_killed"
 		columns = ["Testcase", "Software", "Type", "OS", "Elapsed"]
 		if output:
 			self.settings['logger'].info(title)
 
 		rows = []
-		results = self.settings['db'].analyzeTopElapsed(False)
+		results = self.settings['db'].analyze_top_elapsed(False)
 		for result in results:
 			if toplimit is not None and len(rows) >= toplimit:
 				break
@@ -525,7 +526,7 @@ class Analyze(object):
 		rows = []
 		testcase = kill_status = None
 		outputtmp = []
-		results = self.settings['db'].analyzeKilledDifferences()
+		results = self.settings['db'].analyze_killed_differences()
 		for result in results:
 			if toplimit is not None and len(rows) >= toplimit:
 				break
@@ -802,11 +803,11 @@ class Analyze(object):
 def help(err=""):
 	"""Print a help screen and exit"""
 	if err:
-		print "Error: " + str(err)
+		print "Error: %s\n" % err
 	print "Syntax: "
 	print os.path.basename(__file__) + "  -d db.sqlite          Choose the database"
 	print                           "\t    [-m methodName]       Method: report (default), analyze_stdout, analyze_specific_return_code, etc"
-	print                           "\t    [-e extra_parameter]  Extra parameter used when specifying a for certain methodName (ie, analyzeUsername)"
+	print                           "\t    [-e extra_parameter]  Extra parameter used when specifying a for certain methodName (ie, analyze_username_disclosure)"
 	print                           "\t    [-o html]             Output: html (default), txt or csv."
 	print                           "\t    [-l 20]               Top limit results (default: 20)"
 	sys.exit()
@@ -827,7 +828,10 @@ def main():
 		if o in ("-h", "--help"):
 			help()
 		elif o in ("-d", "--database"):
-			settings['db_file'] = a
+			if os.path.isfile(a):
+				settings['db_file'] = a
+			else:
+				help("Database should be a valid file.")
 		elif o in ("-e", "--extra"):
 			extra = a
 		elif o in ("-m", "--method"):
@@ -838,12 +842,11 @@ def main():
 			try:
 				toplimit = int(a)
 			except:
-				print "Error: top limit should be an integer\n"
-				help()
+				help("Top limit should be an integer.")
 
 	if 'db_file' not in settings:
 		help("The database was not specified.")
-	settings = setting.load_settings(settings)
+	settings = classes.settings.load_settings(settings)
 	settings["output_type"] = output_type
 	analyze = Analyze(settings)
 	analyze.dump_results(method, toplimit, extra)
