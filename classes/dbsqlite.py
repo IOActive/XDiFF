@@ -26,9 +26,9 @@ class DbSqlite(db.Db):
 		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS fuzz_software (id INTEGER PRIMARY KEY, name TEXT, type TEXT, suffix TEXT, execute TEXT, os TEXT, category TEXT, UNIQUE(name, type, os))')
 		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS fuzz_testcase_result (softwareid INTEGER, testcaseid INTEGER, stdout TEXT, stderr TEXT, network TEXT, returncode TEXT, elapsed TEXT, kill_status TEXT, UNIQUE(softwareid, testcaseid))')
 		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS fuzz_constants (id INTEGER PRIMARY KEY, type TEXT, name TEXT)')
-		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS fuzz_testcase (id INTEGER PRIMARY KEY, testcase TEXT UNIQUE)')
-		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS function (function TEXT UNIQUE)')
-		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS value (value TEXT UNIQUE)')
+		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS fuzz_testcase (id INTEGER PRIMARY KEY, testcase BLOB UNIQUE)')
+		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS function (function BLOB UNIQUE)')
+		self.db_cursor.execute('CREATE TABLE IF NOT EXISTS value (value BLOB UNIQUE)')
 		self.db_cursor.execute("SELECT id FROM fuzz_constants WHERE type = 'kill_status'")
 		if self.db_cursor.fetchone() is None:
 			self.db_cursor.execute("INSERT INTO fuzz_constants (type, name) VALUES ('kill_status', 'not killed')")

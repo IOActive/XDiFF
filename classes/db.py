@@ -20,7 +20,7 @@ class Db(object):
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to retrieve information from fuzz_testcase")
 		if len(results) == 0:
-			self.settings['logger'].critical("No testcases defined")
+			self.settings['logger'].warning("No testcases defined")
 		return results
 
 	def get_functions(self):
@@ -33,7 +33,7 @@ class Db(object):
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to retrieve information from function")
 		if len(results) == 0:
-			self.settings['logger'].critical("No functions defined")
+			self.settings['logger'].warning("No functions defined")
 		return results
 
 	def get_values(self):

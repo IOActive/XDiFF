@@ -84,10 +84,13 @@ class Dump(object):
 			if result:
 				for row in result:
 					for colid in range(0, len(row)):
-						if type(row[colid]).__name__ in ['int', 'NoneType']:
+						message = ""
+						if type(row[colid]).__name__ == 'int':
 							message = str(row[colid])
-						else:
-							message = (row[colid]).encode("utf-8")
+						elif type(row[colid]).__name__ == 'buffer':
+							message = "<binary>"
+						elif type(row[colid]).__name__ != 'NoneType']:
+							message = row[colid].encode("utf-8")
 						output += "| {message:{fill}{align}{width}}".format(message=message.replace('\n', ' ')[:size[colid]], fill=" ", align='<', width=size[colid])
 					output += "|\n"
 				output += "-" * self.settings['output_width'] + "\n"
@@ -218,11 +221,11 @@ class Dump(object):
 	        text-align: left;
 	        padding: 0px;
 	        font-size: 12px;
-	        white-space: pre-wrap;       /* Since CSS 2.1 */
-	        white-space: -moz-pre-wrap;  /* Mozilla, since 1999 */
-	        white-space: -pre-wrap;      /* Opera 4-6 */
-	        white-space: -o-pre-wrap;    /* Opera 7 */
-	        word-wrap: break-word;       /* Internet Explorer 5.5+ */
+	        white-space: pre-wrap;
+	        white-space: -moz-pre-wrap;
+	        white-space: -pre-wrap;
+	        white-space: -o-pre-wrap;
+	        word-wrap: break-word;
 	      }
 	      .arrow-up {
 	        float: right;
