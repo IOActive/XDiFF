@@ -19,10 +19,10 @@ It is an open source Python fuzzer able to test multiple pieces of software and 
 Fernando Arnaboldi - _Initial work_
 
 ## Acknowledgments
-Thanks to Lucas Apa, Tao Sauvage, Scott Headington, Carlos Hollman, Cesar Cerrudo, Acid and Topo for their reviews and comments. Thanks to Arlekin for the ANSI.
+Thanks to Lucas Apa, Tao Sauvage, Scott Headington, Carlos Hollman, Cesar Cerrudo, Acid and Topo for their reviews and comments. Thanks to Arlekin for the logo.
 
 ## License
-This project is licensed under the GNU general public license. See the license.txt file for details.
+This project is licensed under the GNU general public license version 3.
 
 ## Logo
 ![XDiFF Logo](https://user-images.githubusercontent.com/12038478/33187082-ec625f3e-d06d-11e7-831a-08e11823a391.png)
