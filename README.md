@@ -9,11 +9,11 @@ It is an open source Python fuzzer able to test multiple pieces of software and 
 
 ## Quick guide
 Please follow the following steps:
-1. [Install](https://github.com/IOActive/XDiFF/wiki/1.-Install) XDiFF on a VM
-2. Define [the input](https://github.com/IOActive/XDiFF/wiki/2.-The-input) of test cases that you will be using to feed the fuzzer
-3. Define [the software](https://github.com/IOActive/XDiFF/wiki/3.-The-software) that you will fuzz
+1. [Install](https://github.com/IOActive/XDiFF/wiki/1.-Install) XDiFF
+2. Define [the input](https://github.com/IOActive/XDiFF/wiki/2.-The-input)
+3. Define [the software](https://github.com/IOActive/XDiFF/wiki/3.-The-software)
 4. Run [the fuzzer](https://github.com/IOActive/XDiFF/wiki/4.-The-fuzzer)
-5. Analyze [the output](https://github.com/IOActive/XDiFF/wiki/5.-The-output) produced 
+5. Analyze [the output](https://github.com/IOActive/XDiFF/wiki/5.-The-output) 
 6. ...
 7. Profit!
 
