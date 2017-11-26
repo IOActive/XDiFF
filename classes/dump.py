@@ -89,7 +89,7 @@ class Dump(object):
 							message = str(row[colid])
 						elif type(row[colid]).__name__ == 'buffer':
 							message = "<binary>"
-						elif type(row[colid]).__name__ != 'NoneType']:
+						elif type(row[colid]).__name__ != 'NoneType':
 							message = row[colid].encode("utf-8")
 						output += "| {message:{fill}{align}{width}}".format(message=message.replace('\n', ' ')[:size[colid]], fill=" ", align='<', width=size[colid])
 					output += "|\n"

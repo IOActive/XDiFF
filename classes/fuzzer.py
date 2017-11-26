@@ -138,7 +138,7 @@ class Fuzzer(object):
 				# uncommenting the next line may crash python depending on the values :P
 				#print "values:",stdout
 				count += self.settings['dbaction'].permute(functions, stdout)
-		self.settings['logger'].info("Testcases generated: %s" % str(count))
+		self.settings['logger'].debug("Testcases generated: %s" % str(count))
 
 	def execute_shell(self, cmd):
 		"""Execute a fuzzer generator within a shell context"""

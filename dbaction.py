@@ -26,7 +26,7 @@ class Dbaction(object):
 		columns = self.settings['db'].get_columns(table)
 		rows = self.settings['db'].get_rows(table)
 		if columns:
-			self.settings['output_width'] = 130
+			#self.settings['output_width'] = 130
 			dump = Dump(self.settings)
 			dump.general("txt", table, columns, [rows])
 		else:

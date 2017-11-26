@@ -97,4 +97,7 @@ def load_settings(settings):
 	settings['canaryhost'] = "127.0.0.1:" + str(settings['webserver_port'])
 	settings['canaryfileremote'] = "canarytokenfileremote"
 
+	# Analyze
+	settings['output_width'] = 130
+
 	return settings

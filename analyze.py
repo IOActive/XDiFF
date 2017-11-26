@@ -18,7 +18,6 @@ class Analyze(object):
 		reload(sys)
 		sys.setdefaultencoding('utf8')
 		self.settings = settings
-		self.settings['output_width'] = 130
 		self.settings['output_file'] = settings['db_file'] + "." + settings['output_type']
 		self.settings['testcase_limit'] = 100
 		self.dump = Dump(self.settings)
