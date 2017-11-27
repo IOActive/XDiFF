@@ -17,6 +17,9 @@ Please follow the following steps:
 6. ...
 7. Profit!
 
+## Disclaimer
+The tool and the fuzzing process can be susceptible to code execution. Proceed at your own risk always using a VM. 
+
 ## Author
 Fernando Arnaboldi - _Initial work_
 
