@@ -51,7 +51,7 @@ def load_settings(settings):
 		print "Error: The database selected is not a valid file"
 		sys.exit()
 
-	settings['version'] = "1.1.0"
+	settings['version'] = "1.1.1"
 	logging.basicConfig(filename='fuzz.log', level=logging.INFO, format='%(asctime)s %(levelname)s %(module)s: %(message)s', datefmt='%Y-%m-%d %H.%M.%S')
 	console = logging.StreamHandler()
 	console.setFormatter(logging.Formatter('%(asctime)s %(levelname)s %(module)s: %(message)s'))
