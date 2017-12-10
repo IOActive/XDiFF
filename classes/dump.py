@@ -201,7 +201,7 @@ class Dump(object):
 					border-collapse: collapse;
 					width: 1200px;
 					margin-left: auto;
-				margin-right: auto;
+					margin-right: auto;
 				}
 				td {
 					border: 1px solid #dddddd;
@@ -247,7 +247,7 @@ class Dump(object):
 				}
 			</script>
 		</head>
-	<body><a id='#'></a>"""
+		<body><a id='#'></a>"""
 		if "output_file" in self.settings:
 			self.write_file(self.settings['output_file'], 'w+', contents)
 		else:

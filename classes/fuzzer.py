@@ -78,10 +78,8 @@ class Fuzzer(object):
 				typeid += 1
 			else:
 				input['execute'].append(arg)
-		# for id in range(0, len(input['data'])):  # python3
-		for id in xrange(0, len(input['data'])):  # python2
-			# for id2 in range(len(input['data'])):  # python3
-			for id2 in xrange(0, len(input['data'])):  # python2
+		for id in xrange(0, len(input['data'])):
+			for id2 in xrange(0, len(input['data'])):
 				input['data'][id]['data'] = input['data'][id]['data'].replace("[[file" + str(id2) + "]]", os.path.basename(input['data'][id2]['datafile'][1]))
 				if 'canaryhost' in self.settings:
 					input['data'][id]['data'] = input['data'][id]['data'].replace("[[url" + str(id2) + "]]", "http://" + self.settings['canaryhost'] + "/" + os.path.basename(input['data'][id2]['datafile'][1]))

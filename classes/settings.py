@@ -89,8 +89,8 @@ def load_settings(settings):
 	settings['kill_status'] = {"not_killed": settings['db'].get_constant_value("kill_status", "not killed"), "requested": settings['db'].get_constant_value("kill_status", "requested"), "killed": settings['db'].get_constant_value("kill_status", "killed"), "not_found": settings['db'].get_constant_value("kill_status", "not found")}
 
 	settings['software'] = define_software(settings)  # load the software and find potential inconsistencies
-	settings['queue'] = Queue(settings)		          # prepare the fuzzer and the webserver to interact
-	settings['monitor'] = Monitor(settings)	          # instantiate the monitor object
+	settings['queue'] = Queue(settings)               # prepare the fuzzer and the webserver to interact
+	settings['monitor'] = Monitor(settings)           # instantiate the monitor object
 	settings['dbaction'] = Dbaction(settings)         # instantiate the dbaction object
 
 	# Monitor

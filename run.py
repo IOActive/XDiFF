@@ -28,7 +28,7 @@ def dfuzz(settings):
 		settings['logger'].info("Setting %s: %s" % (key, str(settings[key])))
 
 	settings['queue'].start_web_server()  # load the webserver
-	settings['monitor'].check_once()  # check before start if the canaries are in place
+	settings['monitor'].check_once()      # check before start if the canaries are in place
 	total_testcases = settings['db'].count_testcases()
 	current_test = settings['db'].get_latest_id(settings['software'])
 	settings['logger'].info("Setting testcases: %s/%s" % (str(current_test), str(total_testcases)))
@@ -52,7 +52,7 @@ def dfuzz(settings):
 		settings['logger'].info("Tests " + str(current_test) + "-" + str(current_test + settings['db_tests']) + " - Set " + str(saved) + " (" + str(int(size / 1024)) + " kb) - Took " + str(int(finish_time)) + "s - Avg Rate " + str(int(rate) * len(settings['software'])) + " - ETC " + str(int(time_left)) + "'")
 		settings['monitor'].check()
 		current_test += settings['db_tests']
-		# break  # uncomment if you want to debug just one cycle of the fuzzer
+		# break  # uncomment if you want to run just one cycle of the fuzzer for debugging purposes
 	settings['queue'].stop_web_server()
 
 
