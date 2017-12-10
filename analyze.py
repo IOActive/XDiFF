@@ -4,18 +4,20 @@ import datetime
 import getopt
 import getpass
 import os
-#import profile
+# import profile  # uncomment for benchmarking and at the bottom
 import re
 import sys
 import time
 import classes.settings
 from classes.dump import Dump
 try:
-    reload         # Python 2
+	reload         # Python 2
 except NameError:  # Python 3
-    from importlib import reload
+	from importlib import reload
 
-MAX = 999999999 # ridiculous high number to get all the occurrences of a function
+# Global variable
+MAX = 999999999  # ridiculous high number to get all the occurrences of a function
+
 
 class Analyze(object):
 	"""Analyzes the fuzzing information for abnormal behaviors"""
@@ -26,8 +28,7 @@ class Analyze(object):
 		self.settings['output_file'] = settings['db_file'] + "." + settings['output_type']
 		self.settings['testcase_limit'] = 100
 		self.dump = Dump(self.settings)
-		self.settings['tmp_dir'] = "ramdisk" # by using this, it will work on multiple directories (ie, /Volumes/ramdisk, /mnt/ramdisk, etc)
-
+		self.settings['tmp_dir'] = "ramdisk"  # by using this, it will work on multiple directories (ie, /Volumes/ramdisk, /mnt/ramdisk, etc)
 		self.count_results = None
 
 	def dump_results(self, method, toplimit, extra):
@@ -59,23 +60,23 @@ class Analyze(object):
 		self.dump.post_general(self.settings['output_type'])
 		size = ""
 		if 'output_file' in self.settings:
-			size = ", output file: " + self.settings['output_file'] + " (" + str(int(os.stat(self.settings['output_file']).st_size/1024)) + " kb)"
+			size = ", output file: " + self.settings['output_file'] + " (" + str(int(os.stat(self.settings['output_file']).st_size / 1024)) + " kb)"
 		finish_time = time.time() - start_time
 		self.settings['logger'].info("Time elapsed %s seconds%s" % (str(int(finish_time)), size))
 
 	def report(self, output, toplimit):
 		"""Print several functions in the form of a report (useful for HTML)"""
-		#self.settings['db'].set_software(["2"])
-		#self.settings['db'].set_software(["9", "10"])
+		# self.settings['db'].set_software(["2"])
+		# self.settings['db'].set_software(["9", "10"])
 
-		#self.list_summary(output, toplimit) # informational
+		# self.list_summary(output, toplimit) # informational
 		self.list_software(output, MAX)
 
-		#self.analyze_elapsed(output, toplimit) # informational
+		# self.analyze_elapsed(output, toplimit) # informational
 		self.list_results(output, toplimit)
 
-		#self.analyze_top_elapsed_killed(output, toplimit) # informational
-		#self.analyze_top_elapsed_not_killed(output, toplimit) # informational
+		# self.analyze_top_elapsed_killed(output, toplimit) # informational
+		# self.analyze_top_elapsed_not_killed(output, toplimit) # informational
 
 		self.analyze_valgrind(output, toplimit)
 		self.analyze_username_disclosure(output, toplimit, username="root")
@@ -86,7 +87,7 @@ class Analyze(object):
 		self.analyze_canary_token_command(output, toplimit)
 		self.analyze_canary_file(output, toplimit)
 
-		#self.analyze_killed_differences(output, toplimit) # informational
+		# self.analyze_killed_differences(output, toplimit) # informational
 
 		self.analyze_return_code(output, toplimit)
 		self.analyze_specific_return_code(output, toplimit)
@@ -95,14 +96,14 @@ class Analyze(object):
 
 		self.analyze_output_messages(output, toplimit, 'stderr')
 		self.analyze_output_messages(output, toplimit, 'stdout')
-		#self.analyze_same_software(output, toplimit) # low_risk
+		# self.analyze_same_software(output, toplimit) # low_risk
 		self.analyze_stdout(output, toplimit)
-		#self.analyze_same_stdout(output, toplimit) # low_risk
+		# self.analyze_same_stdout(output, toplimit) # low_risk
 
-		#self.analyze_file_disclosure(output, toplimit) # low_risk
-		#self.analyze_file_disclosure_without_path(output, toplimit) # low_risk
-		#self.analyze_path_disclosure(output, toplimit) # low_risk
-		#self.analyze_path_disclosure_without_file(output, toplimit) # low_risk
+		# self.analyze_file_disclosure(output, toplimit) # low_risk
+		# self.analyze_file_disclosure_without_path(output, toplimit) # low_risk
+		# self.analyze_path_disclosure(output, toplimit) # low_risk
+		# self.analyze_path_disclosure_without_file(output, toplimit) # low_risk
 
 	def list_summary(self, output, toplimit):
 		"""Print an quantitative information summary using all the analytic functions from this class"""
@@ -199,7 +200,7 @@ class Analyze(object):
 		rows = []
 		testcase = None
 		tmpoutput = []
-		results = self.settings['db'].list_results(lowerlimit, toplimit*self.list_software(None, MAX))
+		results = self.settings['db'].list_results(lowerlimit, toplimit * self.list_software(None, MAX))
 		for result in results:
 			if toplimit is not None and len(rows) >= toplimit:
 				break
@@ -229,7 +230,7 @@ class Analyze(object):
 		for result in results:
 			if toplimit is not None and len(rows) >= toplimit:
 				break
-			if result[5][:10].count('=') == 4: # Valgrind outputs can be detected because they have 4 equal signs in the first 10 characters
+			if result[5][:10].count('=') == 4:  # Valgrind outputs can be detected because they have 4 equal signs in the first 10 characters
 				rows.append([(result[0][:self.settings['testcase_limit']], result[1], result[2], result[3], result[4], result[5], result[6])])
 		self.dump.general(output, title, columns, rows)
 		return len(rows)
@@ -283,7 +284,6 @@ class Analyze(object):
 
 	def analyze_specific_return_code(self, output, toplimit):
 		"""Find specific return codes"""
-		#returncodes = ["22", "-6", "-11", "-15"]
 		returncodes = ["-6", "-9", "-11", "-15"]
 		title = "Analyze Specific Return Codes: " + ",".join(returncodes) + " - analyze_specific_return_code"
 		columns = ["Testcase", "Software", "Type", "OS", "Returncode", "Stdout", "Stderr"]
@@ -320,7 +320,7 @@ class Analyze(object):
 		rows = []
 		if software_ids:
 			original_ids = self.settings['db'].get_software()
-			self.settings['db'].set_software(software_ids) # restrict the ids
+			self.settings['db'].set_software(software_ids)  # restrict the ids
 			software = ""
 			software_returncode = ""
 			testcase = ""
@@ -481,7 +481,7 @@ class Analyze(object):
 				outputtmp = []
 			outputtmp.append((result[0][:self.settings['testcase_limit']], result[1], result[2], result[3], result[4], result[5], result[6]))
 
-		if len(outputtmp)>0:
+		if len(outputtmp) > 0:
 			rows.append(outputtmp)
 		self.dump.general(output, title, columns, rows)
 		return len(rows)
@@ -539,7 +539,6 @@ class Analyze(object):
 				testcase = result[0]
 				kill_status = result[4]
 
-
 			if testcase == result[0] and kill_status != result[4]:
 				outputtmp.append([result[0][:self.settings['testcase_limit']], result[1], result[2], result[3], result[4], result[5], result[6]])
 			else:
@@ -573,7 +572,7 @@ class Analyze(object):
 		rows = []
 		if software_ids:
 			original_ids = self.settings['db'].get_software()
-			self.settings['db'].set_software(software_ids) # restrict the ids
+			self.settings['db'].set_software(software_ids)  # restrict the ids
 			software = ""
 			software_stdout = ""
 			testcase = ""
@@ -656,7 +655,7 @@ class Analyze(object):
 					rows.append(outputtmp)
 				outputtmp = []
 				testcase = result[4]
-			if not results or results[len(results)-1][0] != result[0] or results[len(outputtmp)-1][1] != result[1]:
+			if not results or results[len(results) - 1][0] != result[0] or results[len(outputtmp) - 1][1] != result[1]:
 				outputtmp.append([result[0][:self.settings['testcase_limit']], result[1], result[2], result[3], result[4]])
 		if outputtmp and len(outputtmp) != countsoftware and len(rows) < toplimit:
 			rows.append(outputtmp)
@@ -731,9 +730,9 @@ class Analyze(object):
 		rows = []
 		if software_ids:
 			original_ids = self.settings['db'].get_software()
-			self.settings['db'].set_software(software_ids) # restrict the ids
+			self.settings['db'].set_software(software_ids)  # restrict the ids
 			results = self.settings['db'].analyze_string_disclosure(self.settings['tmp_dir'])
-			self.settings['db'].set_software(original_ids) # set the ids to the original value
+			self.settings['db'].set_software(original_ids)  # set the ids to the original value
 			for result in results:
 				if toplimit is not None and len(rows) >= toplimit:
 					break
@@ -742,7 +741,6 @@ class Analyze(object):
 			self.dump.general(output, title, columns, rows)
 			self.settings['db'].set_software(original_ids)
 		return len(rows)
-
 
 	def analyze_output_messages(self, output, toplimit, messages='stderr'):
 		"""Analize which were the different output messages for each piece of software"""
@@ -761,8 +759,8 @@ class Analyze(object):
 
 			output_parsed = result[5]
 			if len(result[0]) > 5:
-				output_parsed = output_parsed.replace(result[0], "TESTCASE") # if possible, remove the testcase from output
-				output_parsed = output_parsed.replace(result[0].encode("utf-8"), "TESTCASE") # if possible, remove the testcase from output
+				output_parsed = output_parsed.replace(result[0], "TESTCASE")  # if possible, remove the testcase from output
+				output_parsed = output_parsed.replace(result[0].encode("utf-8"), "TESTCASE")  # if possible, remove the testcase from output
 			if output_parsed.find(self.settings['tmp_prefix']) != -1:
 				regex = re.compile('[\S]*' + self.settings['tmp_prefix'] + '[\S]*')
 				regex_iter = re.finditer(regex, output_parsed)
@@ -798,11 +796,12 @@ class Analyze(object):
 		for result in results:
 			if toplimit is not None and len(rows) >= toplimit:
 				break
-			rows.append([[result[0], result[1], result[2], str(datetime.timedelta(seconds=int(result[3]))), str(round(result[3]/self.count_results, 5))]])
+			rows.append([[result[0], result[1], result[2], str(datetime.timedelta(seconds=int(result[3]))), str(round(result[3] / self.count_results, 5))]])
 			total += result[3]
 
 		self.dump.general(output, title, columns, rows)
 		return total
+
 
 def help(err=""):
 	"""Print a help screen and exit"""
@@ -816,6 +815,7 @@ def help(err=""):
 	print("\t    [-l 20]               Top limit results (default: 20)")
 	sys.exit()
 
+
 def main():
 	"""Analyze potential vulnerabilities on a database fuzzing session"""
 	try:
@@ -824,9 +824,9 @@ def main():
 		help(err)
 
 	settings = {}
-	output_type = "html"# default output type
-	method = "report" 	# default method name
-	toplimit = 20 		# default top limit
+	output_type = "html"  # default output type
+	method = "report"  # default method name
+	toplimit = 20  # default top limit
 	extra = None
 	for o, a in opts:
 		if o in ("-h", "--help"):
@@ -845,7 +845,7 @@ def main():
 		elif o in ("-l", "--limit"):
 			try:
 				toplimit = int(a)
-			except:
+			except ValueError:
 				help("Top limit should be an integer.")
 
 	if 'db_file' not in settings:
@@ -855,6 +855,7 @@ def main():
 	analyze = Analyze(settings)
 	analyze.dump_results(method, toplimit, extra)
 
+
 if __name__ == "__main__":
 	main()
-	#profile.run('analyze.dump_results(method, toplimit)')
+	# profile.run('analyze.dump_results(method, toplimit)')

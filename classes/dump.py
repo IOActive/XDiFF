@@ -2,6 +2,7 @@ from __future__ import print_function
 import cgi
 import sys
 
+
 class Dump(object):
 	"""Dump the results received in html, txt or csv"""
 	def __init__(self, settings):
@@ -16,46 +17,46 @@ class Dump(object):
 		if len(columns) == 1:
 			size[0] = self.settings['output_width'] - 3
 		elif len(columns) == 2:
-			size[0] = col0 # fixed length, meant to be used with the testcase
+			size[0] = col0  # fixed length, meant to be used with the testcase
 			size[1] = self.settings['output_width'] - size[0] - 5
 		elif len(columns) == 3:
-			size[0] = col0 # fixed length, meant to be used with the testcase
-			size[1] = col1 # fixed length, meant to be used with the software name
+			size[0] = col0  # fixed length, meant to be used with the testcase
+			size[1] = col1  # fixed length, meant to be used with the software name
 			size[2] = self.settings['output_width'] - size[1] - size[0] - 7
 		elif len(columns) == 4:
-			size[0] = col0 # fixed length, meant to be used with the testcase
-			size[1] = col1 # fixed length, meant to be used with the software name
-			size[2] = (self.settings['output_width'] - size[1] - size[0])/2 - 9
+			size[0] = col0  # fixed length, meant to be used with the testcase
+			size[1] = col1  # fixed length, meant to be used with the software name
+			size[2] = (self.settings['output_width'] - size[1] - size[0]) / 2 - 9
 			size[3] = self.settings['output_width'] - size[2] - size[1] - size[0] - 9
 		elif len(columns) == 5:
-			size[0] = col0 # fixed length, meant to be used with the testcase
-			size[1] = col1 # fixed length, meant to be used with the software name
-			size[2] = (self.settings['output_width'] - size[1] - size[0])/3 - 3
-			size[3] = (self.settings['output_width'] - size[1] - size[0])/3 - 3
+			size[0] = col0  # fixed length, meant to be used with the testcase
+			size[1] = col1  # fixed length, meant to be used with the software name
+			size[2] = (self.settings['output_width'] - size[1] - size[0]) / 3 - 3
+			size[3] = (self.settings['output_width'] - size[1] - size[0]) / 3 - 3
 			size[4] = self.settings['output_width'] - size[3] - size[2] - size[1] - size[0] - 11
 		elif len(columns) == 6:
-			size[0] = col0 # fixed length, meant to be used with the testcase
-			size[1] = col1 # fixed length, meant to be used with the software name
-			size[2] = (self.settings['output_width'] - size[1] - size[0])/4 - 3
-			size[3] = (self.settings['output_width'] - size[1] - size[0])/4 - 3
-			size[4] = (self.settings['output_width'] - size[1] - size[0])/4 - 3
+			size[0] = col0  # fixed length, meant to be used with the testcase
+			size[1] = col1  # fixed length, meant to be used with the software name
+			size[2] = (self.settings['output_width'] - size[1] - size[0]) / 4 - 3
+			size[3] = (self.settings['output_width'] - size[1] - size[0]) / 4 - 3
+			size[4] = (self.settings['output_width'] - size[1] - size[0]) / 4 - 3
 			size[5] = self.settings['output_width'] - size[4] - size[3] - size[2] - size[1] - size[0] - 13
 		elif len(columns) == 7:
-			size[0] = col0 # fixed length, meant to be used with the testcase
-			size[1] = col1 # fixed length, meant to be used with the software name
-			size[2] = (self.settings['output_width'] - size[1] - size[0])/5 - 3
-			size[3] = (self.settings['output_width'] - size[1] - size[0])/5 - 3
-			size[4] = (self.settings['output_width'] - size[1] - size[0])/5 - 3
-			size[5] = (self.settings['output_width'] - size[1] - size[0])/5 - 3
+			size[0] = col0  # fixed length, meant to be used with the testcase
+			size[1] = col1  # fixed length, meant to be used with the software name
+			size[2] = (self.settings['output_width'] - size[1] - size[0]) / 5 - 3
+			size[3] = (self.settings['output_width'] - size[1] - size[0]) / 5 - 3
+			size[4] = (self.settings['output_width'] - size[1] - size[0]) / 5 - 3
+			size[5] = (self.settings['output_width'] - size[1] - size[0]) / 5 - 3
 			size[6] = self.settings['output_width'] - size[5] - size[4] - size[3] - size[2] - size[1] - size[0] - 15
 		elif len(columns) == 8:
-			size[0] = col0 # fixed length, meant to be used with the testcase
-			size[1] = col1 # fixed length, meant to be used with the software name
-			size[2] = (self.settings['output_width'] - size[1] - size[0])/6 - 3
-			size[3] = (self.settings['output_width'] - size[1] - size[0])/6 - 3
-			size[4] = (self.settings['output_width'] - size[1] - size[0])/6 - 3
-			size[5] = (self.settings['output_width'] - size[1] - size[0])/6 - 3
-			size[6] = (self.settings['output_width'] - size[1] - size[0])/6 - 3
+			size[0] = col0  # fixed length, meant to be used with the testcase
+			size[1] = col1  # fixed length, meant to be used with the software name
+			size[2] = (self.settings['output_width'] - size[1] - size[0]) / 6 - 3
+			size[3] = (self.settings['output_width'] - size[1] - size[0]) / 6 - 3
+			size[4] = (self.settings['output_width'] - size[1] - size[0]) / 6 - 3
+			size[5] = (self.settings['output_width'] - size[1] - size[0]) / 6 - 3
+			size[6] = (self.settings['output_width'] - size[1] - size[0]) / 6 - 3
 			size[7] = self.settings['output_width'] - size[6] - size[5] - size[4] - size[3] - size[2] - size[1] - size[0] - 17
 
 		else:
@@ -67,8 +68,8 @@ class Dump(object):
 		"""Print the first row of the table (and then print_text_row and print_text_bottom_row will be used)"""
 		size = self.get_screen_size(columns)
 
-		output  = "-" * self.settings['output_width'] + "\n"
-		output += "| " + title + " " * (self.settings['output_width']-len(title)-4) + " |\n"
+		output = "-" * self.settings['output_width'] + "\n"
+		output += "| " + title + " " * (self.settings['output_width'] - len(title) - 4) + " |\n"
 		output += "-" * self.settings['output_width'] + "\n"
 		for colid in range(0, len(columns)):
 			output += "| {message:{fill}{align}{width}}".format(message=columns[colid][:size[colid]], fill=" ", align='<', width=size[colid])
@@ -119,7 +120,7 @@ class Dump(object):
 						if colid != 0:
 							output += ","
 						output += message
-					output +="\n"
+					output += "\n"
 		return output
 
 	def print_xml_row(self, title, column, results):
@@ -138,12 +139,12 @@ class Dump(object):
 	def print_html_top_row(self, title, columns):
 		"""Print the first row of the HTML table (and then print_html_row will be used)"""
 		output = """<table>
-	      <tr>
-	        <th><a id='""" + "".join(ch for ch in title if ch.isalnum()) + """Link' onclick="toggleTable('""" + "".join(ch for ch in title if ch.isalnum()) + """Table');" href='#""" + "".join(ch for ch in title if ch.isalnum()) + """'>""" + cgi.escape(title) + """</a><a href="#"><div class="arrow-up">top&nbsp;&nbsp;</div></a></th>
-	      </tr>
-	    </table>
-	    <table id='""" + "".join(ch for ch in title if ch.isalnum()) + """Table'>
-	      <tr>"""
+			<tr>
+				<th><a id='""" + "".join(ch for ch in title if ch.isalnum()) + """Link' onclick="toggleTable('""" + "".join(ch for ch in title if ch.isalnum()) + """Table');" href='#""" + "".join(ch for ch in title if ch.isalnum()) + """'>""" + cgi.escape(title) + """</a><a href="#"><div class="arrow-up">top&nbsp;&nbsp;</div></a></th>
+			</tr>
+		</table>
+		<table id='""" + "".join(ch for ch in title if ch.isalnum()) + """Table'>
+			<tr>"""
 		for column in columns:
 			output += "<th>" + cgi.escape(column) + "</th>"
 		output += "</tr>\n"
@@ -186,69 +187,67 @@ class Dump(object):
 		elif output == "html":
 			contents = """<!DOCTYPE html>
 	<html lang="en">
-	  <head>
-	    <title>Fuzzer Results for """ + cgi.escape(self.settings['db_file']) + """</title>
-	    <meta charset="UTF-8">
-	    <style>
-	      a {
-	        transition: color .3s;
-	        color: #265C83;
-	        font-size: 16px;
-	      }
-	      table {
-	        font-family: arial, sans-serif;
-	        border-collapse: collapse;
-	        width: 1200px;
-	        #table-layout:fixed;
-	        margin-left: auto;
-	        margin-right: auto;
-	      }
-	      td {
-	        border: 1px solid #dddddd;
-	        text-align: left;
-	        padding: 4px;
-	        font-size: 12px;
-	      }
-	      th {
-	        border: 1px solid #dddddd;
-	        text-align: left;
-	        padding: 4px;
-	        font-size: 14px;
-	      }
-	      tr.gray {
-	        background-color: #dddddd;
-	      }
-	      pre {
-	        text-align: left;
-	        padding: 0px;
-	        font-size: 12px;
-	        white-space: pre-wrap;
-	        white-space: -moz-pre-wrap;
-	        white-space: -pre-wrap;
-	        white-space: -o-pre-wrap;
-	        word-wrap: break-word;
-	      }
-	      .arrow-up {
-	        float: right;
-	        font-size: 8px;
-	        margin-right: 20px;
-	      }
-	    </style>
-	    <script>
-	      function toggleTable(id) {
-	        var elem = document.getElementById(id);
-	        var hide = elem.style.display == "none";
-	        if (hide) {
-	          elem.style.display = "table";
-	        } 
-	        else {
-	          elem.style.display = "none";
-	        }
-	      }
-	    </script>
-	  </head>
-	  <body><a id='#'></a>"""
-
+		<head>
+			<title>Fuzzer Results for """ + cgi.escape(self.settings['db_file']) + """</title>
+			<meta charset="UTF-8">
+			<style>
+				a {
+					transition: color .3s;
+					color: #265C83;
+					font-size: 16px;
+				}
+				table {
+					font-family: arial, sans-serif;
+					border-collapse: collapse;
+					width: 1200px;
+					margin-left: auto;
+				margin-right: auto;
+				}
+				td {
+					border: 1px solid #dddddd;
+					text-align: left;
+					padding: 4px;
+					font-size: 12px;
+				}
+				th {
+					border: 1px solid #dddddd;
+					text-align: left;
+					padding: 4px;
+					font-size: 14px;
+				}
+				tr.gray {
+					background-color: #dddddd;
+				}
+				pre {
+					text-align: left;
+					padding: 0px;
+					font-size: 12px;
+					white-space: pre-wrap;
+					white-space: -moz-pre-wrap;
+					white-space: -pre-wrap;
+					white-space: -o-pre-wrap;
+					word-wrap: break-word;
+				}
+				.arrow-up {
+					float: right;
+					font-size: 8px;
+					margin-right: 20px;
+				}
+			</style>
+			<script>
+				function toggleTable(id) {
+					var elem = document.getElementById(id);
+					var hide = elem.style.display == "none";
+					if (hide) {
+						elem.style.display = "table";
+					}
+					else {
+						elem.style.display = "none";
+					}
+				}
+			</script>
+		</head>
+	<body><a id='#'></a>"""
 		if "output_file" in self.settings:
 			self.write_file(self.settings['output_file'], 'w+', contents)
 		else:
@@ -278,11 +277,11 @@ class Dump(object):
 		if output is None:
 			return
 		elif output == "txt":
-			contents  = self.print_text_top_row(title, columns)
+			contents = self.print_text_top_row(title, columns)
 			contents += self.print_text_row(columns, rows)
 			contents += self.print_text_bottom_row()
 		elif output == "csv":
-			contents  = self.print_csv_top_row(columns)
+			contents = self.print_csv_top_row(columns)
 			contents += self.print_csv_row(rows)
 		elif output == "xml":
 			contents += self.print_xml_row(title, columns, rows)

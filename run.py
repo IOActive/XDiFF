@@ -7,10 +7,11 @@ import sys
 import time
 import classes.settings
 
+
 def dfuzz(settings):
 	if 'fuzz_category' not in settings:
 		help("The category was not specified.")
-	settings = classes.settings.load_settings(settings)	# load the fuzzer settings
+	settings = classes.settings.load_settings(settings)	 # load the fuzzer settings
 	if len(settings['software']) == 0:
 		help("There is no software associated to the category selected")
 
@@ -24,10 +25,10 @@ def dfuzz(settings):
 	settings['logger'].info("Starting Fuzzer v%s" % str(settings['version']))
 	settings['logger'].info("-----------------------")
 	for key in sorted(settings.iterkeys()):
- 		settings['logger'].info("Setting %s: %s" % (key, str(settings[key])))
+		settings['logger'].info("Setting %s: %s" % (key, str(settings[key])))
 
-	settings['queue'].start_web_server()	# load the webserver
-	settings['monitor'].check_once()		# check before start if the canaries are in place
+	settings['queue'].start_web_server()  # load the webserver
+	settings['monitor'].check_once()  # check before start if the canaries are in place
 	total_testcases = settings['db'].count_testcases()
 	current_test = settings['db'].get_latest_id(settings['software'])
 	settings['logger'].info("Setting testcases: %s/%s" % (str(current_test), str(total_testcases)))
@@ -43,17 +44,17 @@ def dfuzz(settings):
 		dbinput = settings['queue'].fuzz(tests)
 		saved, size = settings['db'].set_results(dbinput)
 		finish_time = (time.time() - start_time)
-		elapsed_time += finish_time # Total time elapsed testing
-		remaining_tests = total_testcases - (current_test + settings['db_tests']) # Tests left
+		elapsed_time += finish_time  # Total time elapsed testing
+		remaining_tests = total_testcases - (current_test + settings['db_tests'])  # Tests left
 		test_count += settings['db_tests']
-		rate = test_count/elapsed_time # Rate per second
-		time_left = remaining_tests/rate/60 # How many hours are left ?
-		settings['logger'].info("Tests " + str(current_test) + "-" + str(current_test + settings['db_tests']) + " - Set " + str(saved) + " (" + str(int(size/1024)) + " kb) - Took " + str(int(finish_time)) + "s - Avg Rate " + str(int(rate)*len(settings['software'])) + " - ETC " + str(int(time_left)) + "'")
+		rate = test_count / elapsed_time  # Rate per second
+		time_left = remaining_tests / rate / 60  # How many hours are left ?
+		settings['logger'].info("Tests " + str(current_test) + "-" + str(current_test + settings['db_tests']) + " - Set " + str(saved) + " (" + str(int(size / 1024)) + " kb) - Took " + str(int(finish_time)) + "s - Avg Rate " + str(int(rate) * len(settings['software'])) + " - ETC " + str(int(time_left)) + "'")
 		settings['monitor'].check()
 		current_test += settings['db_tests']
-		#break
+		# break  # uncomment if you want to debug just one cycle of the fuzzer
 	settings['queue'].stop_web_server()
-	#queue.stopDriver()
+
 
 def help(err=""):
 	"""Print a help screen and exit"""
@@ -73,6 +74,7 @@ def help(err=""):
 	print("\t[-T 10]            Timeout per thread")
 	print("\t[-v]               Use valgrind")
 	sys.exit()
+
 
 def main():
 	"""Fuzz something FFS!"""
@@ -108,6 +110,7 @@ def main():
 			settings['valgrind'] = True
 
 	dfuzz(settings)
+
 
 if __name__ == "__main__":
 	main()

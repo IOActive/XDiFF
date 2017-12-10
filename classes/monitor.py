@@ -6,6 +6,7 @@ import subprocess
 import sys
 import urllib2
 
+
 class Monitor(object):
 	"""Checks that everything is looking good before the fuzzer stats, and while the fuzzer operates"""
 	def __init__(self, settings):
@@ -25,7 +26,7 @@ class Monitor(object):
 	def check(self):
 		"""Check on each loop the canary file and the free space"""
 		self.remove_stuff()
-		status  = self.check_canary_file(self.settings['tmp_dir'] + self.settings['canaryfile'], self.settings['canaryfiletoken'])
+		status = self.check_canary_file(self.settings['tmp_dir'] + self.settings['canaryfile'], self.settings['canaryfiletoken'])
 		status += self.check_free_space()
 		return status
 
@@ -34,7 +35,7 @@ class Monitor(object):
 		# delete specific files
 		if sys.platform == "linux2":
 			try:
-				os.remove(os.getenv("HOME") + '.hhvm.hhbc') # hhvm may fill up the disk with temp stuff
+				os.remove(os.getenv("HOME") + '.hhvm.hhbc')  # hhvm may fill up the disk with temp stuff
 			except:
 				pass
 		# delete all tmp_dir files
@@ -111,7 +112,7 @@ class Monitor(object):
 		if token in stdout.strip():
 			return 1
 		else:
-			self.settings['logger'].warning("CanaryCommand token (" + token + ") differs: '"+str(stdout.strip())+"'")
+			self.settings['logger'].warning("CanaryCommand token (" + token + ") differs: '" + str(stdout.strip()) + "'")
 			return 0
 
 	def check_canary_references(self, reference):
@@ -122,7 +123,6 @@ class Monitor(object):
 		else:
 			return 1
 
-	#@staticmethod
 	def check_free_space(self, lowerlimit=200):
 		"""Check if the there are more than Xmb free"""
 		if sys.platform == "win32":
@@ -131,9 +131,9 @@ class Monitor(object):
 			free_mb = free_bytes.value / 1024 / 1024
 		else:
 			stat = os.statvfs('.')
-			free_mb = stat.f_bfree*stat.f_frsize/1024/1024
+			free_mb = stat.f_bfree * stat.f_frsize / 1024 / 1024
 		if free_mb <= lowerlimit:
-			self.settings['logger'].critical("There is not enough space on the device. The current free disk space in gigabytes is: " + str(stat.f_bfree*stat.f_frsize/1024/1024))
+			self.settings['logger'].critical("There is not enough space on the device. The current free disk space in gigabytes is: " + str(stat.f_bfree * stat.f_frsize / 1024 / 1024))
 			sys.exit()
 		return 1
 

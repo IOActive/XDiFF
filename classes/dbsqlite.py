@@ -6,6 +6,7 @@ import sys
 import time
 from . import db
 
+
 class DbSqlite(db.Db):
 	"""Used in conjunction with the class Db, with supposedly specific SQLite content"""
 	def __init__(self, settings, db_file):
@@ -18,7 +19,7 @@ class DbSqlite(db.Db):
 			self.db_connection.execute("PRAGMA synchronous = OFF")
 			self.db_connection.execute("PRAGMA temp_store = MEMORY")
 			self.db_connection.execute("PRAGMA count_changes = OFF")
-			#self.db_connection.text_factory = lambda x: x.decode("utf-8", "ignore") # python3
+			# self.db_connection.text_factory = lambda x: x.decode("utf-8", "ignore") # python3
 		except Exception as e:
 			self.settings['logger'].critical("Exception when initializing the database: %s" % str(e))
 			sys.exit()
@@ -60,7 +61,7 @@ class DbSqlite(db.Db):
 		self.db_cursor.execute("SELECT name FROM sqlite_master WHERE type = 'table' AND name = 'fuzz_constants'")
 		value = self.db_cursor.fetchone()
 		if value is None:
-			return None # table does not exists
+			return None  # table does not exists
 		self.db_cursor.execute("SELECT id FROM fuzz_constants WHERE type=:type AND name=:name", {"type": constant_type, "name": constant_name})
 		value = self.db_cursor.fetchone()
 		if value is not None:
@@ -73,7 +74,7 @@ class DbSqlite(db.Db):
 		for piece in software:
 			ids.append(str(piece['softwareid']))
 		try:
-			self.db_cursor.execute("SELECT testcaseid FROM fuzz_testcase_result WHERE softwareid IN (" + ",".join(ids) + ") ORDER BY testcaseid DESC LIMIT 1") # lazy sqli everywhere ftw
+			self.db_cursor.execute("SELECT testcaseid FROM fuzz_testcase_result WHERE softwareid IN (" + ",".join(ids) + ") ORDER BY testcaseid DESC LIMIT 1")  # lazy sqli everywhere ftw
 			latestid = self.db_cursor.fetchone()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to retrieve the latest id: %s " % str(e))
@@ -118,7 +119,6 @@ class DbSqlite(db.Db):
 				time.sleep(2)
 		self.db_cursor.execute("SELECT count(testcaseid) FROM fuzz_testcase_result")
 		current_amount = self.db_cursor.fetchone()
-		#size = "{:,}".format(os.stat(self.settings['db_file']).st_size - size)
 		size = os.stat(self.settings['db_file']).st_size - size
 		# return testcases received, the amount of testcases saved, and the size of them
 		return ((current_amount[0] - amount[0]), size)
@@ -154,7 +154,7 @@ class DbSqlite(db.Db):
 		while True:
 			# if you are having concurrency with the sqlite database, things may break apart
 			try:
-				self.db_cursor.execute("INSERT OR IGNORE INTO " + table + " (" + ",".join(column) + ") VALUES (" + ','.join('?'*len(column)) + ")", row)
+				self.db_cursor.execute("INSERT OR IGNORE INTO " + table + " (" + ",".join(column) + ") VALUES (" + ','.join('?' * len(column)) + ")", row)
 				self.commit()
 				break
 			except Exception as e:

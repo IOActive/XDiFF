@@ -18,13 +18,16 @@ Please follow the following steps:
 7. Profit!
 
 ## Disclaimer
-The tool and the fuzzing process can be susceptible to code execution. Proceed at your own risk always using a VM. 
+The tool and the fuzzing process can be susceptible to code execution. Use it at your own risk always inside a VM. 
 
-## Author
-Fernando Arnaboldi - _Initial work_
+## Authors
+- Fernando Arnaboldi - _Initial work_
+- [cclauss](https://github.com/cclauss)
+
+For contributions, please propose a [Changelog](https://github.com/IOActive/XDiFF/wiki/Changelog) entry in the pull-request comments.
 
 ## Acknowledgments
-Thanks Lucas Apa, Tao Sauvage, Scott Headington, Carlos Hollman, Cesar Cerrudo, Acid and Topo for their feedback. Thanks Arlekin for the logo.
+Thanks Lucas Apa, Tao Sauvage, Scott Headington, Carlos Hollman, Cesar Cerrudo, Federico Muttis, Topo for their feedback and Arlekin for the logo.
 
 ## License
 This project is licensed under the GNU general public license version 3.

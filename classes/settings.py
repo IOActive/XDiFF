@@ -10,6 +10,7 @@ from dbaction import Dbaction
 from .dbsqlite import DbSqlite
 from .monitor import Monitor
 
+
 def define_software(settings):
 	"""The software gets loaded in a dictionary"""
 	software = []
@@ -18,9 +19,9 @@ def define_software(settings):
 		software_file = open(settings['software'], "r")
 		for line in software_file:
 			line = line.strip()
-			if line[:1] != "#": # parse lines that are not comments
-				if line[:1] == "[" and line[len(line)-1:len(line)] == "]": # is this a category?
-					Category = line[1:len(line)-1]
+			if line[:1] != "#":  # parse lines that are not comments
+				if line[:1] == "[" and line[len(line) - 1:len(line)] == "]":  # is this a category?
+					Category = line[1:len(line) - 1]
 					Type = Suffix = None
 					OS = []
 				if Category == settings['fuzz_category']:
@@ -40,12 +41,13 @@ def define_software(settings):
 							item['suffix'] = Suffix
 							item['name'] = line[:line.find('=')].strip()
 							if 'valgrind' in settings and settings['valgrind']:
-								item['execute'] = eval('["valgrind", "-q", ' + line[line.find('=')+1:].strip()[1:])
+								item['execute'] = eval('["valgrind", "-q", ' + line[line.find('=') + 1:].strip()[1:])
 							else:
-								item['execute'] = eval(line[line.find('=')+1:].strip())
+								item['execute'] = eval(line[line.find('=') + 1:].strip())
 							item['softwareid'] = settings['db'].get_software_id(item)
 							software.append(item)
 	return software
+
 
 def load_settings(settings):
 	"""Define global settings"""
@@ -60,11 +62,11 @@ def load_settings(settings):
 	settings['logger'] = logging.getLogger('fuzzer')
 	settings['logger'].addHandler(console)
 
-	settings['soft_limit'] = 250 # maximum limit for the output of stdout & stderr
-	settings['soft_bypass'] = ["canarytoken", getpass.getuser(), "root", "/usr", "/bin", "PATH", "core dump", "egmentation fault", "== "] # exceptions for the soft_limit setting
-	settings['hard_limit'] = 1024 # maximum hard limit, regardless of the soft_limit & soft_bypass
-	#settings['hard_limit_lines'] = 1 # maximum line limit in the output
-	settings['tmp_prefix'] = "chkF_" # prefix for temporary files created
+	settings['soft_limit'] = 250       # maximum limit for the output of stdout & stderr
+	settings['soft_bypass'] = ["canarytoken", getpass.getuser(), "root", "/usr", "/bin", "PATH", "core dump", "egmentation fault", "== "]  # exceptions for the soft_limit setting
+	settings['hard_limit'] = 1024      # maximum hard limit, regardless of the soft_limit & soft_bypass
+	# settings['hard_limit_lines'] = 1 # maximum line limit in the output
+	settings['tmp_prefix'] = "chkF_"   # prefix for temporary files created
 
 	if sys.platform in ["darwin"]:
 		settings['tmp_dir'] = "/Volumes/ramdisk/"
@@ -75,27 +77,27 @@ def load_settings(settings):
 	elif sys.platform == "linux2" or sys.platform == "freebsd11":
 		settings['tmp_dir'] = "/mnt/ramdisk/"
 		settings['tmp_dir_howto'] = "mkdir /mnt/ramdisk; mount -t tmpfs -o size=512m tmpfs /mnt/ramdisk; echo \"tmpfs /mnt/ramdisk tmpfs nodev,nosuid,noexec,nodiratime,size=512M 0 0\" >> /etc/fstab"
-	settings['webserver_port'] = random.randrange(10000, 65535) # dynamic web server port: crashes in the same port may interfere
-	# settings['webserver_port'] = 8000 # fixed value
+	settings['webserver_port'] = random.randrange(10000, 65535)  # dynamic web server port: crashes in the same port may interfere
+	# settings['webserver_port'] = 8000                          # sometimes you just need a fixed value
 	settings['db'] = DbSqlite(settings, settings['db_file'])
 	if "db_tests" not in settings:
-		settings['db_tests'] = 100	# save the results in the database every X tests
+		settings['db_tests'] = 100  # save the results in the database every X tests
 	if "software" not in settings:
-		settings['software'] = os.path.abspath("software.ini") # software definitions
+		settings['software'] = os.path.abspath("software.ini")  # software definitions
 	if "timeout" not in settings:
-		settings['timeout'] = 10	# default timeout for threads in seconds
-	settings['kill_status'] = {"not_killed":settings['db'].get_constant_value("kill_status", "not killed"), "requested":settings['db'].get_constant_value("kill_status", "requested"), "killed":settings['db'].get_constant_value("kill_status", "killed"), "not_found": settings['db'].get_constant_value("kill_status", "not found")}
+		settings['timeout'] = 10    # default timeout for threads in seconds
+	settings['kill_status'] = {"not_killed": settings['db'].get_constant_value("kill_status", "not killed"), "requested": settings['db'].get_constant_value("kill_status", "requested"), "killed": settings['db'].get_constant_value("kill_status", "killed"), "not_found": settings['db'].get_constant_value("kill_status", "not found")}
 
-	settings['software'] = define_software(settings)	# load the software and find potential inconsistencies
-	settings['queue'] = Queue(settings)		# prepare the fuzzer and the webserver to interact
-	settings['monitor'] = Monitor(settings)	# instantiate the monitor object
-	settings['dbaction'] = Dbaction(settings) # instantiate the dbaction object
+	settings['software'] = define_software(settings)  # load the software and find potential inconsistencies
+	settings['queue'] = Queue(settings)		          # prepare the fuzzer and the webserver to interact
+	settings['monitor'] = Monitor(settings)	          # instantiate the monitor object
+	settings['dbaction'] = Dbaction(settings)         # instantiate the dbaction object
 
 	# Monitor
 	settings['canaryfile'] = "canaryfile"
-	settings['canaryfiletoken'] = "canarytokenfilelocal" # contents of settings['canaryfile']
+	settings['canaryfiletoken'] = "canarytokenfilelocal"  # contents of settings['canaryfile']
 	settings['canaryexec'] = "canaryfile.bat"
-	settings['canaryexectoken'] = "canarytokencommand" # contents of settings['canaryexec']
+	settings['canaryexectoken'] = "canarytokencommand"    # contents of settings['canaryexec']
 	settings['canaryhost'] = "127.0.0.1:" + str(settings['webserver_port'])
 	settings['canaryfileremote'] = "canarytokenfileremote"
 

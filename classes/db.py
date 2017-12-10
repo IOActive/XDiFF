@@ -255,9 +255,8 @@ class Db(object):
 
 	def analyze_output_messages(self, messages):
 		"""Get the results that produced error messages"""
-		self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.returncode, r." + messages + " FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r." + messages + " !='' " + self.restrict_software) # sqli ftw!
+		self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.returncode, r." + messages + " FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r." + messages + " !='' " + self.restrict_software)  # sqli ftw!
 		return self.db_cursor.fetchall()
-
 
 	def analyze_elapsed(self):
 		"""Analize the total time required for each piece of software"""
@@ -275,6 +274,6 @@ class Db(object):
 		try:
 			self.db_cursor.execute("SELECT * FROM " + table)
 			results = self.db_cursor.fetchall()
-		except:
-			self.settings['logger'].critical("Exception when trying to return the rows from the table %s" % table)
+		except Exception as e:
+			self.settings['logger'].critical("Exception when trying to return the rows from the table %s:" % (table, str(e)))
 		return results

@@ -4,6 +4,7 @@ import subprocess
 import threading
 import time
 
+
 class Execute(object):
 	"""Thread being executed by Fuzzer"""
 	def __init__(self, settings, piece, testcase):
@@ -30,14 +31,14 @@ class Execute(object):
 	def kill_process(self, process):
 		"""After the defined timeout, try to kill the process"""
 		self.kill_status = self.settings['kill_status']['requested']
-		if process.poll() is None: # don't send the signal unless it seems it is necessary
+		if process.poll() is None:  # don't send the signal unless it seems it is necessary
 			try:
 				# Unix
 				os.killpg(os.getpgid(process.pid), signal.SIGTERM)
 				# Windows/Unix
-				#process.kill()
+				# process.kill()
 				self.kill_status = self.settings['kill_status']['killed']
-			except OSError: # ignore
+			except OSError:  # ignore
 				self.kill_status = self.settings['kill_status']['not_killed']
 		self.settings['logger'].debug("Killed process status: %s" % str(self.kill_status))
 
@@ -50,9 +51,9 @@ class Execute(object):
 		if "execute" in piece:
 			try:
 				# Unix
-				#p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+				# p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 				# Windows/Unix
-				#p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+				# p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				if 'stdin' in testcase:
 					p = subprocess.Popen(testcase['execute'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
 				else:
@@ -67,8 +68,6 @@ class Execute(object):
 				returncode = p.returncode
 				stdout = unicode(stdout.strip(), errors='ignore')
 				stderr = unicode(stderr.strip(), errors='ignore')
-				#stdout_length = len(stdout)
-				#stderr_length = len(stderr)
 				stdout, stderr = self.analyze_results(stdout, stderr)
 			except OSError:
 				stderr = "Exception: OSErrorException"
@@ -77,8 +76,8 @@ class Execute(object):
 			except Exception as e:
 				stderr = "Exception: " + str(e)
 		elapsed = str(round(time.time() - start_test, 4))
-		self.results = {"softwareid":piece['softwareid'], "testcaseid":testcase['testcaseid'], "stdout":stdout, "stderr":stderr, "network" :None, "returncode":returncode, "elapsed":elapsed, "kill_status":self.kill_status}
-		#self.settings['logger'].debug("Output produced: " + str(self.results))
+		self.results = {"softwareid": piece['softwareid'], "testcaseid": testcase['testcaseid'], "stdout": stdout, "stderr": stderr, "network": None, "returncode": returncode, "elapsed": elapsed, "kill_status": self.kill_status}
+		self.settings['logger'].debug("Output produced: " + str(self.results))
 
 	def analyze_results(self, stdout, stderr):
 		"""Save full results for certain specific special strings"""

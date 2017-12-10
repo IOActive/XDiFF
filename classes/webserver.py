@@ -4,6 +4,7 @@ import threading
 import urlparse
 import os.path
 
+
 class BaseHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 	"""Changes a few things from SimpleHTTPServer to handle requests"""
 	my_class = None
@@ -31,7 +32,7 @@ class BaseHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 				softwareid[1] = int(softwareid[1])
 				data = unicode(str(url), errors='ignore')
 
-				flag = False # we don't want dupes, check if the request hasn't been issued before
+				flag = False  # we don't want dupes, check if the request hasn't been issued before
 				for x in range(0, len(self.my_class.ids)):
 					if self.my_class.ids[x][0] == testcaseid[1] and self.my_class.ids[x][1] == softwareid[1] and self.my_class.ids[x][2] == data:
 						flag = True
@@ -47,6 +48,7 @@ class BaseHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):
 			self.end_headers()
 			content = open(getfile, "r")
 			self.wfile.write(content.read())
+
 
 class WebServer(object):
 	"""Used to parse HTTP connections"""
