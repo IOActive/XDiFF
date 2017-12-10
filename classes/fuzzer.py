@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import random
 import string
@@ -5,7 +7,13 @@ import subprocess
 import sys
 import tempfile
 from distutils.spawn import find_executable
-from execute import Execute
+from .execute import Execute
+
+try:
+    xrange          # Python 2
+except NameError:
+    xrange = range  # Python 3
+
 
 class Fuzzer(object):
 	"""Executes fuzzing threads"""
@@ -23,7 +31,7 @@ class Fuzzer(object):
 				try:
 					process.append(Execute(self.settings, piece, input))
 				except Exception:
-					print "Error when trying to append a new process. Try using less parallel threads. Terminating..."
+					print("Error when trying to append a new process. Try using less parallel threads. Terminating...")
 					sys.exit()
 		for x in range(0, len(process)):
 			process[x].join()
@@ -84,15 +92,15 @@ class Fuzzer(object):
 	def generate_tests(self, latest_id, limit):
 		"""Generate random tests using functions as an input and values as random entry points"""
 		if self.settings['generate_tests'] > 5:
-			print "Error: option for random tests not available"
+			print("Error: option for random tests not available")
 			sys.exit()
 		values = self.settings['db'].get_values()
 		if not values:
-			print "Error: no values detected, you require at least 1 value in the table 'value'. For example: ./dbaction.py -d %s -t value -i canaryfile" % self.settings['db_file']
+			print("Error: no values detected, you require at least 1 value in the table 'value'. For example: ./dbaction.py -d %s -t value -i canaryfile" % self.settings['db_file'])
 			sys.exit()
 		functions = self.settings['db'].get_functions()
 		if not functions:
-			print "Error: no functions detected, you require at least 1 value in the table 'function'. For example: ./dbaction.py -d %s -t function -i [[test]]" % self.settings['db_file']
+			print("Error: no functions detected, you require at least 1 value in the table 'function'. For example: ./dbaction.py -d %s -t function -i [[test]]" % self.settings['db_file'])
 			sys.exit()	
 		self.settings['logger'].info("Testcases being generated")
 		count = 0
@@ -101,7 +109,7 @@ class Fuzzer(object):
 				stdout = [] # where the new random values will be stored
 				if self.settings['generate_tests'] in [0, 1, 2, 3]: # radamsa
 					if not find_executable("radamsa"):
-						print "Error: radamsa not found within PATH"
+						print("Error: radamsa not found within PATH")
 						sys.exit()
 					input_value = tempfile.mkstemp(suffix="File", prefix=self.settings['tmp_prefix']+"mutate_", dir=self.settings['tmp_dir'])
 					if self.settings['generate_tests'] in [0, 2]: # add a newline to speed up the generation process
@@ -118,7 +126,7 @@ class Fuzzer(object):
 					os.unlink(input_value[1])
 				if self.settings['generate_tests'] in [0, 1, 4, 5]: # zzuf
 					if not find_executable("zzuf"):
-						print "Error: zzuf not found within PATH"
+						print("Error: zzuf not found within PATH")
 						sys.exit()
 					input_value = tempfile.mkstemp(suffix="File", prefix=self.settings['tmp_prefix']+"mutate_", dir=self.settings['tmp_dir'])
 					if self.settings['generate_tests'] in [0, 4]: # add a newline to speed up the generation process

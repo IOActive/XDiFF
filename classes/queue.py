@@ -1,5 +1,6 @@
-from fuzzer import Fuzzer
-from webserver import WebServer
+from __future__ import absolute_import
+from .fuzzer import Fuzzer
+from .webserver import WebServer
 
 class Queue(Fuzzer, WebServer):
 	"""Used to share information between executions and the webserver"""

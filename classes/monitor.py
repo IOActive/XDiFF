@@ -59,7 +59,7 @@ class Monitor(object):
 				token_file = open(filename, 'r')
 			except:
 				self.settings['logger'].debug("CanaryFile could not be open, changing its permissions")
-				os.chmod(filename, 0644)
+				os.chmod(filename, 0o644)
 				token_file = open(filename, 'r')
 			tmptoken = token_file.read().strip()
 			token_file.close()
