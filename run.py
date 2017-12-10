@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import getopt
 import os
 import signal
@@ -16,7 +17,7 @@ def dfuzz(settings):
 	try:
 		os.chdir(settings['tmp_dir'])		# it is safer to operate somewhere else
 	except:
-		print "It wasn't possible to mount the ram disk (%s). Instructions to mount it: %s" % (settings['tmp_dir'], settings['tmp_dir_howto'])
+		print("It wasn't possible to mount the ram disk (%s). Instructions to mount it: %s" % (settings['tmp_dir'], settings['tmp_dir_howto']))
 		sys.exit()
 
 	settings['logger'].info("-----------------------")
@@ -57,20 +58,20 @@ def dfuzz(settings):
 def help(err=""):
 	"""Print a help screen and exit"""
 	if err:
-		print "Error: " + str(err)
-	print "XDiFF Syntax: "
-	print os.path.basename(__file__) + "\t-d db.sqlite       Choose the database"
-	print                              "\t-c Python          Software category to be fuzzed"
-	print                              "\t[-r 0]             Random inputs: radamsa & zzuf without newlines (faster)"
-	print                              "\t[-r 1]             Random inputs: radamsa & zzuf with newlines (slower)"
-	print                              "\t[-r 2]             Random inputs: radamsa without newlines (faster)"
-	print                              "\t[-r 3]             Random inputs: radamsa with newlines (slower)"
-	print                              "\t[-r 4]             Random inputs: zzuf without newlines (faster)"
-	print                              "\t[-r 5]             Random inputs: zzuf with newlines (slower)"
-	print                              "\t[-s software.ini]  Configuration file for software to be fuzzed"
-	print                              "\t[-t 100]           Threads executed in parallel"
-	print                              "\t[-T 10]            Timeout per thread"
-	print                              "\t[-v]               Use valgrind"
+		print("Error: " + str(err))
+	print("XDiFF Syntax: ")
+	print(os.path.basename(__file__) + "\t-d db.sqlite       Choose the database")
+	print("\t-c Python          Software category to be fuzzed")
+	print("\t[-r 0]             Random inputs: radamsa & zzuf without newlines (faster)")
+	print("\t[-r 1]             Random inputs: radamsa & zzuf with newlines (slower)")
+	print("\t[-r 2]             Random inputs: radamsa without newlines (faster)")
+	print("\t[-r 3]             Random inputs: radamsa with newlines (slower)")
+	print("\t[-r 4]             Random inputs: zzuf without newlines (faster)")
+	print("\t[-r 5]             Random inputs: zzuf with newlines (slower)")
+	print("\t[-s software.ini]  Configuration file for software to be fuzzed")
+	print("\t[-t 100]           Threads executed in parallel")
+	print("\t[-T 10]            Timeout per thread")
+	print("\t[-v]               Use valgrind")
 	sys.exit()
 
 def main():

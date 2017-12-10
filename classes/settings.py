@@ -1,3 +1,5 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import getpass
 import logging
 import os
@@ -5,8 +7,8 @@ import random
 import sys
 from queue import Queue
 from dbaction import Dbaction
-from dbsqlite import DbSqlite
-from monitor import Monitor
+from .dbsqlite import DbSqlite
+from .monitor import Monitor
 
 def define_software(settings):
 	"""The software gets loaded in a dictionary"""
@@ -48,7 +50,7 @@ def define_software(settings):
 def load_settings(settings):
 	"""Define global settings"""
 	if "db_file" not in settings:
-		print "Error: The database selected is not a valid file"
+		print("Error: The database selected is not a valid file")
 		sys.exit()
 
 	settings['version'] = "1.1.1"

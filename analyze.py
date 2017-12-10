@@ -1,4 +1,5 @@
 #!/usr/bin/env python
+from __future__ import print_function
 import datetime
 import getopt
 import getpass
@@ -9,6 +10,10 @@ import sys
 import time
 import classes.settings
 from classes.dump import Dump
+try:
+    reload         # Python 2
+except NameError:  # Python 3
+    from importlib import reload
 
 MAX = 999999999 # ridiculous high number to get all the occurrences of a function
 
@@ -30,7 +35,7 @@ class Analyze(object):
 		try:
 			method_to_call = getattr(self, method)
 		except:
-			print "Error: method should be a valid local method name\n"
+			print("Error: method should be a valid local method name\n")
 			help()
 		start_time = time.time()
 		if method != "report":
@@ -42,13 +47,13 @@ class Analyze(object):
 			try:
 				method_to_call(self.settings['output_type'], toplimit, extra)
 			except Exception as e:
-				print "Error executing the method: %s" % e
+				print("Error executing the method: %s" % e)
 				return
 		else:
 			try:
 				method_to_call(self.settings['output_type'], toplimit)
 			except Exception as e:
-				print "Error executing the method: %s" % e
+				print("Error executing the method: %s" % e)
 				return
 
 		self.dump.post_general(self.settings['output_type'])
@@ -370,7 +375,7 @@ class Analyze(object):
 	def analyze_username_disclosure(self, output, toplimit, username=None):
 		"""Find when a specific username is disclosed in the stdout or in the stderr"""
 		if username is None:
-			print "Error: extra parameter username has not been defined"
+			print("Error: extra parameter username has not been defined")
 			help()
 		title = "Analyze Username Disclosure: " + username + " - analyze_username_disclosure"
 		columns = ["Testcase", "Software", "Type", "OS", "Stdout", "Stderr"]
@@ -802,13 +807,13 @@ class Analyze(object):
 def help(err=""):
 	"""Print a help screen and exit"""
 	if err:
-		print "Error: %s\n" % err
-	print "Syntax: "
-	print os.path.basename(__file__) + "  -d db.sqlite          Choose the database"
-	print                           "\t    [-m methodName]       Method: report (default), analyze_stdout, analyze_specific_return_code, etc"
-	print                           "\t    [-e extra_parameter]  Extra parameter used when specifying a for certain methodName (ie, analyze_username_disclosure)"
-	print                           "\t    [-o html]             Output: html (default), txt or csv."
-	print                           "\t    [-l 20]               Top limit results (default: 20)"
+		print("Error: %s\n" % err)
+	print("Syntax: ")
+	print(os.path.basename(__file__) + "  -d db.sqlite          Choose the database")
+	print("\t    [-m methodName]       Method: report (default), analyze_stdout, analyze_specific_return_code, etc")
+	print("\t    [-e extra_parameter]  Extra parameter used when specifying a for certain methodName (ie, analyze_username_disclosure)")
+	print("\t    [-o html]             Output: html (default), txt or csv.")
+	print("\t    [-l 20]               Top limit results (default: 20)")
 	sys.exit()
 
 def main():

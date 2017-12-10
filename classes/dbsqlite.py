@@ -1,8 +1,10 @@
+from __future__ import print_function
+from __future__ import absolute_import
 import os
 import sqlite3
 import sys
 import time
-import db
+from . import db
 
 class DbSqlite(db.Db):
 	"""Used in conjunction with the class Db, with supposedly specific SQLite content"""
@@ -49,7 +51,7 @@ class DbSqlite(db.Db):
 		softwareid = self.db_cursor.fetchone()
 		# UNIQUE Constraint: fuzz_software.name, fuzz_software.type, fuzz_software.os
 		if softwareid is None:
-			print "Error: there was no software found. Is there a unique name, type and os for the fuzzed software ?"
+			print("Error: there was no software found. Is there a unique name, type and os for the fuzzed software ?")
 			sys.exit()
 		return softwareid[0]
 

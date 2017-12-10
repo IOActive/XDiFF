@@ -1,3 +1,4 @@
+from __future__ import print_function
 import cgi
 import sys
 
@@ -58,7 +59,7 @@ class Dump(object):
 			size[7] = self.settings['output_width'] - size[6] - size[5] - size[4] - size[3] - size[2] - size[1] - size[0] - 17
 
 		else:
-			print "Error: too many columns: ", len(columns)
+			print("Error: too many columns: ", len(columns))
 			sys.exit()
 		return size
 
@@ -251,7 +252,7 @@ class Dump(object):
 		if "output_file" in self.settings:
 			self.write_file(self.settings['output_file'], 'w+', contents)
 		else:
-			print contents
+			print(contents)
 
 	def post_general(self, output):
 		"""Print any post code required before wrapping up"""
@@ -265,7 +266,7 @@ class Dump(object):
 		if "output_file" in self.settings:
 			self.write_file(self.settings['output_file'], 'a+', contents)
 		else:
-			print contents
+			print(contents)
 
 	def general(self, output, title, columns, rows):
 		"""Main function to dump stuff: from here, you can export in different formats (txt, csv, xml, html) to the screen or files"""
@@ -290,13 +291,13 @@ class Dump(object):
 			contents += self.print_html_row(rows)
 			contents += self.print_html_bottom_row(title)
 		else:
-			print "Error: incorrect output selected"
+			print("Error: incorrect output selected")
 			sys.exit()
 
 		if "output_file" in self.settings and self.settings['output_file'] is not None:
 			self.write_file(self.settings['output_file'], 'a+', contents)
 		else:
-			print contents
+			print(contents)
 
 	def write_file(self, output_file, mode, content):
 		"""Write the content into a file"""
@@ -305,5 +306,5 @@ class Dump(object):
 			target.write(content)
 			target.close()
 		except:
-			print "Error: could not write in file '%s'." % output_file
+			print("Error: could not write in file '%s'." % output_file)
 			sys.exit(1)
