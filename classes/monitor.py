@@ -8,8 +8,12 @@ import sys
 
 try:
 	from urllib2 import urlopen # python 2
+	from urllib2 import HTTPError
+	from urllib2 import URLError
 except ImportError:
 	from urllib.request import urlopen # python 3
+	from urllib.error import HTTPError
+	from urllib.error import URLError
 
 
 class Monitor(object):
@@ -99,16 +103,10 @@ class Monitor(object):
 		except socket.error:
 			self.settings['logger'].warning("CanaryWeb Hostname " + str(hostname) + " not found")
 			return 0
-		except urllib2.HTTPError:
+		except HTTPError:
 			self.settings['logger'].warning("CanaryWeb Filename " + str(filename) + " not found: " + url)
 			return 0
-		except urllib.HTTPError:
-			self.settings['logger'].warning("CanaryWeb Filename " + str(filename) + " not found: " + url)
-			return 0
-		except urllib2.URLError:
-			self.settings['logger'].warning("CanaryWeb may not work, network is unreachable")
-			return 0
-		except urllib.URLError:
+		except URLError:
 			self.settings['logger'].warning("CanaryWeb may not work, network is unreachable")
 			return 0
 
