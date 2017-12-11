@@ -3,6 +3,13 @@ import SimpleHTTPServer
 import threading
 import urlparse
 import os.path
+import sys
+
+
+# Use str() instead of unicode() for Python 3
+if sys.version_info[0] == 3:
+	def unicode(value, errors=None):
+		return str(value)
 
 
 class BaseHandler(SimpleHTTPServer.SimpleHTTPRequestHandler):

@@ -10,6 +10,12 @@ from classes.dump import Dump
 from classes.dbsqlite import DbSqlite
 
 
+# Use str() instead of unicode() for Python 3
+if sys.version_info[0] == 3:
+	def unicode(value, errors=None):
+		return str(value)
+
+
 class Dbaction(object):
 	"""Do stuff with the fuzzer's databases: copy databases, print tables, insert stuff and generate testcases"""
 	def __init__(self, settings):
