@@ -3,12 +3,12 @@ import signal
 import subprocess
 import threading
 import time
-import sys
 
 
-# Use str() instead of unicode() for Python 3
-if sys.version_info[0] == 3:
-	def unicode(value, errors=None):
+try:
+	unicode('')                       # Python 2
+except NameError:
+	def unicode(value, errors=None):  # Python 3
 		return str(value)
 
 
