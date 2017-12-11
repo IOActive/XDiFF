@@ -11,7 +11,7 @@ from classes.dbsqlite import DbSqlite
 
 
 try:
-	unicode('')                       # Python 2
+	unicode                           # Python 2
 except NameError:
 	def unicode(value, errors=None):  # Python 3
 		return str(value)
