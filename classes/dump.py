@@ -112,15 +112,15 @@ class Dump(object):
 		output = ""
 		for result in results:
 			for row in result:
-					for colid in range(0, len(row)):
-						if type(row[colid]).__name__ in ['int', 'NoneType']:
-							message = str(row[colid])
-						else:
-							message = (row[colid]).encode("utf-8")
-						if colid != 0:
-							output += ","
-						output += message
-					output += "\n"
+				for colid in range(0, len(row)):
+					if type(row[colid]).__name__ in ['int', 'NoneType']:
+						message = str(row[colid])
+					else:
+						message = (row[colid]).encode("utf-8")
+					if colid != 0:
+						output += ","
+					output += message
+				output += "\n"
 		return output
 
 	def print_xml_row(self, title, column, results):

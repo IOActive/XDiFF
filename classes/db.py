@@ -18,8 +18,8 @@ class Db(object):
 			results = self.db_cursor.fetchall()
 			self.settings['logger'].debug("Testcases read: %s " % str(len(results)))
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to retrieve information from fuzz_testcase")
-		if len(results) == 0:
+			self.settings['logger'].critical("Exception when trying to retrieve information from fuzz_testcase: %s" % str(e))
+		if not results:
 			self.settings['logger'].warning("No testcases defined")
 		return results
 
@@ -31,8 +31,8 @@ class Db(object):
 			results = self.db_cursor.fetchall()
 			self.settings['logger'].debug("Functions read: %s " % str(len(results)))
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to retrieve information from function")
-		if len(results) == 0:
+			self.settings['logger'].critical("Exception when trying to retrieve information from function: %s" % str(e))
+		if not results:
 			self.settings['logger'].warning("No functions defined")
 		return results
 
@@ -58,7 +58,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT s.id, s.name, s.type, s.os FROM fuzz_software AS s " + active + " ORDER BY s.name ASC")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to list software")
+			self.settings['logger'].critical("Exception when trying to list software: %s" % str(e))
 		return results
 
 	def set_software(self, softwareids):
@@ -72,14 +72,14 @@ class Db(object):
 		"""Get the current software ids restriction"""
 		return self.restrict_software
 
-	def get_software_type(self, type):
+	def get_software_type(self, category_type):
 		"""Get the software ids associated to a certain category type"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT s.id FROM fuzz_software AS s WHERE s.type = '" + type + "' " + self.restrict_software.replace("r.softwareid", "s.id") + " ORDER BY s.name")
+			self.db_cursor.execute("SELECT s.id FROM fuzz_software AS s WHERE s.type = '" + category_type + "' " + self.restrict_software.replace("r.softwareid", "s.id") + " ORDER BY s.name")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to get software type")
+			self.settings['logger'].critical("Exception when trying to get software type: %s" % str(e))
 		return results
 
 	def list_results(self, lowerlimit=0, toplimit=-1):
@@ -91,7 +91,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, c.name FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE t.id >= " + str(lowerlimit) + " AND r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND c.id = r.kill_status " + self.restrict_software + " ORDER BY r.testcaseid LIMIT " + str(int(toplimit)))
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to list results")
+			self.settings['logger'].critical("Exception when trying to list results: %s" % str(e))
 		return results
 
 	def list_killed_results(self):
@@ -113,7 +113,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT s.name, s.type, s.os, r.returncode, COUNT(r.returncode) FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE t.id = r.testcaseid and s.id = r.softwareid AND r.returncode != '' " + self.restrict_software + " GROUP BY r.returncode,s.name ORDER BY s.name, r.returncode;")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to list return code per software")
+			self.settings['logger'].critical("Exception when trying to list return code per software: %s" % str(e))
 		return results
 
 	def analyze_specific_return_code(self, returncodes):
@@ -124,7 +124,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.returncode, r.stdout, r.stderr FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE t.id = r.testcaseid and s.id = r.softwareid AND r.returncode != '' " + self.restrict_software + returncodes + " ORDER BY s.name, r.returncode")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze specific return code")
+			self.settings['logger'].critical("Exception when trying to analyze specific return code: %s" % str(e))
 		return results
 
 	def analyze_return_code_differences(self):
@@ -134,7 +134,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, r.returncode, r.stdout, r.stderr FROM fuzz_testcase AS t, fuzz_software AS s, fuzz_testcase_result AS r WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.returncode != '' " + self.restrict_software + " ORDER BY r.testcaseid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the return code differences")
+			self.settings['logger'].critical("Exception when trying to analyze the return code differences: %s" % str(e))
 		return results
 
 	def count_software(self):
@@ -170,7 +170,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND t.testcase NOT LIKE '%canaryfile%' AND (r.stdout LIKE '%canaryfile%' OR r.stderr LIKE '%canaryfile%') " + self.restrict_software)
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the canary file")
+			self.settings['logger'].critical("Exception when trying to analyze the canary file: %s" % str(e))
 		return results
 
 	def analyze_top_elapsed(self, killed):
@@ -186,7 +186,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.elapsed FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id  AND c.type = 'kill_status' AND c.id = r.kill_status " + killed + self.restrict_software + " ORDER BY r.elapsed DESC")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the top time elapsed")
+			self.settings['logger'].critical("Exception when trying to analyze the top time elapsed: %s" % str(e))
 		return results
 
 	def analyze_killed_differences(self):
@@ -196,7 +196,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, c.name, r.stdout, r.stderr FROM fuzz_testcase AS t, fuzz_software AS s, fuzz_testcase_result AS r, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND r.kill_status = c.id " + self.restrict_software + " ORDER BY r.testcaseid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze differences when killing software")
+			self.settings['logger'].critical("Exception when trying to analyze differences when killing software: %s" % str(e))
 		return results
 
 	def analyze_same_software(self):
@@ -206,7 +206,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, r.stdout FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id " + self.restrict_software + " ORDER BY r.testcaseid, s.name")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the same software")
+			self.settings['logger'].critical("Exception when trying to analyze the same software: %s" % str(e))
 		return results
 
 	def analyze_stdout(self, lowerlimit, upperlimit):
@@ -216,7 +216,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, r.stdout, s.category, s.os,t.id FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.stdout != '' AND r.testcaseid >= " + str(lowerlimit) + " AND r.testcaseid <= " + str(upperlimit) + self.restrict_software + " ORDER BY r.testcaseid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the stdout")
+			self.settings['logger'].critical("Exception when trying to analyze the stdout: %s" % str(e))
 		return results
 
 	def analyze_same_stdout(self):
@@ -226,7 +226,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.stdout in (SELECT DISTINCT(r2.stdout) FROM fuzz_testcase_result AS r2, fuzz_testcase AS t2 WHERE r2.testcaseid = t2.id AND r2.stdout != '' ) " + self.restrict_software + " ORDER BY r.stdout, s.name")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the same stdout")
+			self.settings['logger'].critical("Exception when trying to analyze the same stdout: %s" % str(e))
 		return results
 
 	def analyze_string_disclosure(self, searchme, excludeme="", excludecli=""):
@@ -240,7 +240,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, r.returncode FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND (r.stdout LIKE '%" + searchme + "%' OR r.stderr LIKE '%" + searchme + "%' ESCAPE '_')" + excludeme + excludecli + self.restrict_software)
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze the string disclosure")
+			self.settings['logger'].critical("Exception when trying to analyze the string disclosure: %s" % str(e))
 		return results
 
 	def analyze_remote_connection(self, searchme=""):
@@ -250,7 +250,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, r.network FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.network !='' AND (r.stdout LIKE '%" + searchme + "%' OR r.stderr LIKE '%" + searchme + "%' ESCAPE '_')" + self.restrict_software)
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze remote connections")
+			self.settings['logger'].critical("Exception when trying to analyze remote connections: %s" % str(e))
 		return results
 
 	def analyze_output_messages(self, messages):
@@ -265,7 +265,7 @@ class Db(object):
 			self.db_cursor.execute("SELECT s.name, s.type, s.os, SUM(r.elapsed) FROM fuzz_testcase_result AS r, fuzz_software AS s WHERE r.softwareid = s.id GROUP BY r.softwareid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to analyze time elapsed")
+			self.settings['logger'].critical("Exception when trying to analyze time elapsed: %s" % str(e))
 		return results
 
 	def get_rows(self, table):

@@ -104,7 +104,7 @@ class Dbaction(object):
 		function_tuple = function
 
 		# There are no values, only functions:
-		if len(values) == 0:
+		if not values:
 			testcases.append((unicode(function_tuple),))
 		else:
 			if self.settings['generate_type'] == 1:
@@ -154,7 +154,7 @@ class Dbaction(object):
 
 	def generate(self, fromdb):
 		"""Generate the testcases with a permutation of values and functions"""
-		startTime = time.time()
+		start_time = time.time()
 		self.settings['db'] = DbSqlite(self.settings, fromdb)
 
 		self.settings['db'].create_table()
@@ -164,13 +164,13 @@ class Dbaction(object):
 		total = self.permute(functions, values)
 
 		self.settings['db'].commit()
-		finishTime = time.time() - startTime
+		finish_time = time.time() - start_time
 		self.settings['logger'].info("Testcases generated: %s" % str(total))
-		self.settings['logger'].info("Time required: %s seconds" % str(round(finishTime, 2)))
+		self.settings['logger'].info("Time required: %s seconds" % str(round(finish_time, 2)))
 
 	def migrate(self, fromdb, todb):
 		"""Migrates tables from one database ('dbfrom') to another database ('dbto')"""
-		startTime = time.time()
+		start_time = time.time()
 		self.settings['dbfrom'] = DbSqlite(self.settings, fromdb)
 		self.settings['dbto'] = DbSqlite(self.settings, todb)
 
@@ -184,8 +184,8 @@ class Dbaction(object):
 
 		self.settings['dbto'].commit()
 
-		finishTime = time.time() - startTime
-		self.settings['logger'].info("Finished, time elapsed %s seconds" % str(finishTime)[:5])
+		finish_time = time.time() - start_time
+		self.settings['logger'].info("Finished, time elapsed %s seconds" % str(finish_time)[:5])
 
 
 def help(err=None):

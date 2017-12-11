@@ -10,6 +10,7 @@ import sys
 import time
 import classes.settings
 from classes.dump import Dump
+
 try:
 	reload         # Python 2
 except NameError:  # Python 3
@@ -481,7 +482,7 @@ class Analyze(object):
 				outputtmp = []
 			outputtmp.append((result[0][:self.settings['testcase_limit']], result[1], result[2], result[3], result[4], result[5], result[6]))
 
-		if len(outputtmp) > 0:
+		if outputtmp:
 			rows.append(outputtmp)
 		self.dump.general(output, title, columns, rows)
 		return len(rows)

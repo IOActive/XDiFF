@@ -12,7 +12,7 @@ def dfuzz(settings):
 	if 'fuzz_category' not in settings:
 		help("The category was not specified.")
 	settings = classes.settings.load_settings(settings)	 # load the fuzzer settings
-	if len(settings['software']) == 0:
+	if not settings['software']:
 		help("There is no software associated to the category selected")
 
 	try:

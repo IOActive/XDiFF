@@ -4,7 +4,12 @@ import shutil
 import socket
 import subprocess
 import sys
-import urllib2
+
+
+try:
+	from urllib2 import urlopen # python 2
+except ImportError:
+	from urllib.request import urlopen # python 3
 
 
 class Monitor(object):
@@ -74,9 +79,9 @@ class Monitor(object):
 
 	def create_canary_file(self, filename, token):
 		"""Create a text file with a certain token"""
-		canaryFile = open(filename, 'w')
-		canaryFile.write(token)
-		canaryFile.close()
+		canary_file = open(filename, 'w')
+		canary_file.write(token)
+		canary_file.close()
 		self.settings['logger'].debug("CanaryFile created")
 		return 1
 
@@ -84,7 +89,7 @@ class Monitor(object):
 		"""Check if the hostname exists, that is possible to retrieve the filename and the contents are equal to the token"""
 		url = "http://" + hostname + "/" + filename + "?monitor"
 		try:
-			response = urllib2.urlopen("http://" + hostname + "/" + filename + "?monitor", timeout=5)
+			response = urlopen("http://" + hostname + "/" + filename + "?monitor", timeout=5)
 			data = response.read().strip()
 			if data == token:
 				return 1
@@ -97,7 +102,13 @@ class Monitor(object):
 		except urllib2.HTTPError:
 			self.settings['logger'].warning("CanaryWeb Filename " + str(filename) + " not found: " + url)
 			return 0
+		except urllib.HTTPError:
+			self.settings['logger'].warning("CanaryWeb Filename " + str(filename) + " not found: " + url)
+			return 0
 		except urllib2.URLError:
+			self.settings['logger'].warning("CanaryWeb may not work, network is unreachable")
+			return 0
+		except urllib.URLError:
 			self.settings['logger'].warning("CanaryWeb may not work, network is unreachable")
 			return 0
 
