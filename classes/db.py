@@ -1,3 +1,22 @@
+#
+# Copyright (C) 2018  Fernando Arnaboldi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
+import subprocess
+
+
 class Db(object):
 	"""High level DB class: other databases could used this general set of queries"""
 	def __init__(self, settings):
@@ -8,7 +27,12 @@ class Db(object):
 
 	def commit(self):
 		"""Save changes to the database"""
-		self.db_connection.commit()
+		try:
+			self.db_connection.commit()
+		except Exception as e:
+			p = subprocess.Popen(["fuser", self.settings["db_file"]], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
+			stdout, stderr = p.communicate()
+			self.settings['logger'].error("The database is locked by the following PIDs: %s", stdout)
 
 	def get_fuzz_testcase(self):
 		"""Get the fuzz testcases """
@@ -22,6 +46,11 @@ class Db(object):
 		if not results:
 			self.settings['logger'].warning("No testcases defined")
 		return results
+
+	def delete_unused_testcases(self):
+		"""Delete any unused testcases generated"""
+		self.db_cursor.execute("DELETE FROM fuzz_testcase WHERE id NOT IN (SELECT testcaseid FROM fuzz_testcase_result);")
+		self.commit()
 
 	def get_functions(self):
 		"""Get the name of the functions"""
@@ -88,7 +117,7 @@ class Db(object):
 		if toplimit is None:
 			toplimit = -1
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, c.name FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE t.id >= " + str(lowerlimit) + " AND r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND c.id = r.kill_status " + self.restrict_software + " ORDER BY r.testcaseid LIMIT " + str(int(toplimit)))
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.stdout, r.stderr, c.name FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE t.id >= " + str(lowerlimit) + " AND r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND c.id = r.kill_status " + self.restrict_software + " ORDER BY r.testcaseid LIMIT " + str(int(toplimit)))
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to list results: %s" % str(e))
@@ -96,7 +125,7 @@ class Db(object):
 
 	def list_killed_results(self):
 		"""Get a list of the killed fuzzed results"""
-		self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, c.name FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND c.id = r.kill_status AND c.name != 'not killed' " + self.restrict_software + " ORDER BY r.testcaseid ")
+		self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.stdout, r.stderr, c.name FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND c.id = r.kill_status AND c.name != 'not killed' " + self.restrict_software + " ORDER BY r.testcaseid ")
 		return self.db_cursor.fetchall()
 
 	def count_results(self, lowerlimit=0, toplimit=-1):
@@ -121,7 +150,7 @@ class Db(object):
 		results = []
 		returncodes = " AND r.returncode IN (" + ",".join(returncodes) + ") "
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.returncode, r.stdout, r.stderr FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE t.id = r.testcaseid and s.id = r.softwareid AND r.returncode != '' " + self.restrict_software + returncodes + " ORDER BY s.name, r.returncode")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.returncode, r.stdout, r.stderr FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE t.id = r.testcaseid and s.id = r.softwareid AND r.returncode != '' " + self.restrict_software + returncodes + " ORDER BY s.name, r.returncode")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze specific return code: %s" % str(e))
@@ -131,7 +160,7 @@ class Db(object):
 		"""Find testcases where the return code was different depending on the input"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, r.returncode, r.stdout, r.stderr FROM fuzz_testcase AS t, fuzz_software AS s, fuzz_testcase_result AS r WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.returncode != '' " + self.restrict_software + " ORDER BY r.testcaseid")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, r.returncode, r.stdout, r.stderr FROM fuzz_testcase AS t, fuzz_software AS s, fuzz_testcase_result AS r WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.returncode != '' " + self.restrict_software + " ORDER BY r.testcaseid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the return code differences: %s" % str(e))
@@ -159,15 +188,21 @@ class Db(object):
 
 	def count_reference(self, reference):
 		"""Count how many testcases matching the reference are available"""
-		self.db_cursor.execute("SELECT COUNT(testcase) FROM fuzz_testcase WHERE testcase LIKE '%" + reference + "%'")
-		query = self.db_cursor.fetchone()
-		return query[0]
+		results = None
+		if reference:
+			try:
+				self.db_cursor.execute("SELECT COUNT(testcase) FROM fuzz_testcase WHERE testcase LIKE '%" + reference + "%'")
+				query = self.db_cursor.fetchone()
+				results = query[0]
+			except Exception as e:
+				self.settings['logger'].critical("Exception when trying to count how many testcases matching the reference are available: %s" % str(e))
+		return results
 
 	def analyze_canary_file(self):
 		"""Get all stdout/stderr references of canary files that were not originally used on the testcase"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND t.testcase NOT LIKE '%canaryfile%' AND (r.stdout LIKE '%canaryfile%' OR r.stderr LIKE '%canaryfile%') " + self.restrict_software)
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.stdout, r.stderr FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND t.testcase NOT LIKE '%canaryfile%' AND (r.stdout LIKE '%canaryfile%' OR r.stderr LIKE '%canaryfile%') " + self.restrict_software)
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the canary file: %s" % str(e))
@@ -183,7 +218,7 @@ class Db(object):
 		elif killed is True:
 			killed = " AND c.name != 'not killed' "
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.elapsed FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id  AND c.type = 'kill_status' AND c.id = r.kill_status " + killed + self.restrict_software + " ORDER BY r.elapsed DESC")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.elapsed FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id  AND c.type = 'kill_status' AND c.id = r.kill_status " + killed + self.restrict_software + " ORDER BY r.elapsed DESC")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the top time elapsed: %s" % str(e))
@@ -193,7 +228,7 @@ class Db(object):
 		"""Find which testcases were required to be killed AND were also not killed (loop vs no loop for others)"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, c.name, r.stdout, r.stderr FROM fuzz_testcase AS t, fuzz_software AS s, fuzz_testcase_result AS r, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND r.kill_status = c.id " + self.restrict_software + " ORDER BY r.testcaseid")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, c.name, r.stdout, r.stderr FROM fuzz_testcase AS t, fuzz_software AS s, fuzz_testcase_result AS r, fuzz_constants AS c WHERE r.softwareid = s.id AND r.testcaseid = t.id AND c.type = 'kill_status' AND r.kill_status = c.id " + self.restrict_software + " ORDER BY r.testcaseid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze differences when killing software: %s" % str(e))
@@ -203,7 +238,7 @@ class Db(object):
 		"""Find testcases when the same software produces different results when using different inputs (ie, Node_CLI vs Node_File) """
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, r.stdout FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id " + self.restrict_software + " ORDER BY r.testcaseid, s.name")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, r.stdout FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id " + self.restrict_software + " ORDER BY r.testcaseid, s.name")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the same software: %s" % str(e))
@@ -213,7 +248,7 @@ class Db(object):
 		"""Finds testcases that produce the same output"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, r.stdout, s.category, s.os,t.id FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.stdout != '' AND r.testcaseid >= " + str(lowerlimit) + " AND r.testcaseid <= " + str(upperlimit) + self.restrict_software + " ORDER BY r.testcaseid")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, r.stdout, s.category, s.os,t.id FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.stdout != '' AND r.testcaseid >= " + str(lowerlimit) + " AND r.testcaseid <= " + str(upperlimit) + self.restrict_software + " ORDER BY r.testcaseid")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the stdout: %s" % str(e))
@@ -223,21 +258,27 @@ class Db(object):
 		"""Used to analyze when different testcases are producing the same output"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.stdout in (SELECT DISTINCT(r2.stdout) FROM fuzz_testcase_result AS r2, fuzz_testcase AS t2 WHERE r2.testcaseid = t2.id AND r2.stdout != '' ) " + self.restrict_software + " ORDER BY r.stdout, s.name")
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.stdout FROM fuzz_testcase_result AS r, fuzz_testcase AS t, fuzz_software AS s WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.stdout in (SELECT DISTINCT(r2.stdout) FROM fuzz_testcase_result AS r2, fuzz_testcase AS t2 WHERE r2.testcaseid = t2.id AND r2.stdout != '' ) " + self.restrict_software + " ORDER BY r.stdout, s.name")
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the same stdout: %s" % str(e))
 		return results
 
-	def analyze_string_disclosure(self, searchme, excludeme="", excludecli=""):
+	def analyze_string_disclosure(self, searchme, excludeme="", excludecli="", where=None):
 		"""Return stdout and stderr values containing a specific string"""
 		results = []
 		if excludeme != "":
 			excludeme = " AND r.stdout NOT LIKE '%" + excludeme + "%' AND r.stderr NOT LIKE '%" + excludeme + "%' "
 		if excludecli != "":
 			excludecli = " AND s.type = 'File' "
+		if where is None:
+			where = "r.stdout LIKE '%" + searchme + "%' OR r.stderr LIKE '%" + searchme + "%' ESCAPE '_'"
+		elif where is 'stdout':
+			where = "r.stdout LIKE '%" + searchme + "%' ESCAPE '_'"
+		elif where is 'stderr':
+			where = "r.stderr LIKE '%" + searchme + "%' ESCAPE '_'"
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, r.returncode FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND (r.stdout LIKE '%" + searchme + "%' OR r.stderr LIKE '%" + searchme + "%' ESCAPE '_')" + excludeme + excludecli + self.restrict_software)
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.stdout, r.stderr, r.returncode FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND (" + where + ")" + excludeme + excludecli + self.restrict_software)
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze the string disclosure: %s" % str(e))
@@ -247,7 +288,7 @@ class Db(object):
 		"""Get the remote connections established"""
 		results = []
 		try:
-			self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.stdout, r.stderr, r.network FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.network !='' AND (r.stdout LIKE '%" + searchme + "%' OR r.stderr LIKE '%" + searchme + "%' ESCAPE '_')" + self.restrict_software)
+			self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.stdout, r.stderr, r.network FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r.network !='' AND (r.stdout LIKE '%" + searchme + "%' OR r.stderr LIKE '%" + searchme + "%' ESCAPE '_')" + self.restrict_software)
 			results = self.db_cursor.fetchall()
 		except Exception as e:
 			self.settings['logger'].critical("Exception when trying to analyze remote connections: %s" % str(e))
@@ -255,7 +296,7 @@ class Db(object):
 
 	def analyze_output_messages(self, messages):
 		"""Get the results that produced error messages"""
-		self.db_cursor.execute("SELECT t.testcase, s.name, s.type, s.os, r.returncode, r." + messages + " FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r." + messages + " !='' " + self.restrict_software)  # sqli ftw!
+		self.db_cursor.execute("SELECT substr(t.testcase, 1, " + str(self.settings['testcase_limit']) + "), s.name, s.type, s.os, r.returncode, r." + messages + " FROM fuzz_testcase_result AS r, fuzz_software AS s, fuzz_testcase AS t WHERE r.softwareid = s.id AND r.testcaseid = t.id AND r." + messages + " !='' " + self.restrict_software)  # sqli ftw!
 		return self.db_cursor.fetchall()
 
 	def analyze_elapsed(self):
@@ -271,9 +312,10 @@ class Db(object):
 	def get_rows(self, table):
 		"""Return all the rows from a certain given table"""
 		results = None
-		try:
-			self.db_cursor.execute("SELECT * FROM " + table)
-			results = self.db_cursor.fetchall()
-		except Exception as e:
-			self.settings['logger'].critical("Exception when trying to return the rows from the table %s:" % (table, str(e)))
+		if table:
+			try:
+				self.db_cursor.execute("SELECT * FROM " + table)
+				results = self.db_cursor.fetchall()
+			except Exception as e:
+				self.settings['logger'].error("Exception when trying to return the rows from the table %s: %s" % (table, str(e)))
 		return results

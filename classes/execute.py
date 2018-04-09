@@ -1,15 +1,25 @@
+#
+# Copyright (C) 2018  Fernando Arnaboldi
+#
+# This program is free software: you can redistribute it and/or modify
+# it under the terms of the GNU General Public License as published by
+# the Free Software Foundation, either version 3 of the License, or
+# (at your option) any later version.
+#
+# This program is distributed in the hope that it will be useful,
+# but WITHOUT ANY WARRANTY; without even the implied warranty of
+# MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+# GNU General Public License for more details.
+#
+# You should have received a copy of the GNU General Public License
+# along with this program.  If not, see <http://www.gnu.org/licenses/>.
+#
 import os
 import signal
 import subprocess
 import threading
 import time
-
-
-try:
-	unicode                           # Python 2
-except NameError:
-	def unicode(value, errors=None):  # Python 3
-		return str(value)
+import compat
 
 
 class Execute(object):
@@ -57,14 +67,16 @@ class Execute(object):
 		start_test = time.time()
 		if "execute" in piece:
 			try:
-				# Unix
-				# p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
-				# Windows/Unix
-				# p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				if 'stdin' in testcase:
+					# Unix
 					p = subprocess.Popen(testcase['execute'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+					# Windows/Unix
+					# p = subprocess.Popen(testcase['execute'], stdin=subprocess.PIPE, stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				else:
+					# Unix
 					p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE, preexec_fn=os.setsid)
+					# Windows/Unix
+					# p = subprocess.Popen(testcase['execute'], stdout=subprocess.PIPE, stderr=subprocess.PIPE)
 				t = threading.Timer(self.settings['timeout'], self.kill_process, [p])
 				t.start()
 				if 'stdin' in testcase:
@@ -73,8 +85,8 @@ class Execute(object):
 					stdout, stderr = p.communicate()
 				t.cancel()
 				returncode = p.returncode
-				stdout = unicode(stdout.strip(), errors='ignore')
-				stderr = unicode(stderr.strip(), errors='ignore')
+				stdout = compat.unicode(stdout.strip(), errors='ignore')
+				stderr = compat.unicode(stderr.strip(), errors='ignore')
 				stdout, stderr = self.analyze_results(stdout, stderr)
 			except OSError:
 				stderr = "Exception: OSErrorException"
