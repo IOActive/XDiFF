@@ -1,7 +1,7 @@
 # Changelog
 Changes are listed in time order: newer changes are at the top, older changes are at the bottom.
 
-## Version: [1.2](https://github.com/IOActive/XDiFF/releases/tag/1.2)
+## Version: [1.2.0](https://github.com/IOActive/XDiFF/releases/tag/1.2)
 - Changed main function names in the root directory
 - Improved code, documentation, and (most of) the code is now tested. Tons of bugfixes.
 - Added new analysis for error disclosure (analyze_error_disclosure) and path disclosure (analyze_path_disclosure_stderr)

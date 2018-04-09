@@ -9,6 +9,7 @@
   * Different versions
   * Different implementations
   * Different operating systems' implementations
+
  The fuzzer uses Python and runs on multiple OSs (Linux, Windows, OS X, and 
  Freebsd). Its main goal is to detect issues based on diffential fuzzing aided 
  with the extended capabilities to increase coverage. Still, it will found

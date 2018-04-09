@@ -83,7 +83,7 @@ def help(err=""):
 	print("XDiFF Syntax: ")
 	print(os.path.basename(__file__) + " -d db.sqlite       Choose the database")
 	print("\t     -c Python          Software category to be fuzzed")
-	print("\t     [-D]               Debug information")
+	print("\t     [-D]               Print debugging information")
 	print("\t     [-r 0]             Random inputs: radamsa & zzuf without newlines (faster)")
 	print("\t     [-r 1]             Random inputs: radamsa & zzuf with newlines (slower)")
 	print("\t     [-r 2]             Random inputs: radamsa without newlines (faster)")
