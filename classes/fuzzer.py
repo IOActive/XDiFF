@@ -140,11 +140,11 @@ class Fuzzer(object):
 		else:
 			values = self.settings['db'].get_values()
 			if not values:
-				self.settings["logger"].error("No values detected, you require at least 1 value in the table 'value'. For example: ./dbaction.py -d %s -t value -i canaryfile", self.settings['db_file'])
+				self.settings["logger"].error("No values detected, you require at least 1 value in the table 'value'. For example: ./xdiff_dbaction.py -d %s -t value -i canaryfile", self.settings['db_file'])
 			else:
 				functions = self.settings['db'].get_functions()
 				if not functions:
-					self.settings["logger"].error("No functions detected, you require at least 1 value in the table 'function'. For example: ./dbaction.py -d %s -t function -i [[test]]", self.settings['db_file'])
+					self.settings["logger"].error("No functions detected, you require at least 1 value in the table 'function'. For example: ./xdiff_dbaction.py -d %s -t function -i [[test]]", self.settings['db_file'])
 				else:
 					self.settings['logger'].info("Testcases being generated")
 					count = 0

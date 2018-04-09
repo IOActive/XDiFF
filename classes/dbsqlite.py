@@ -81,7 +81,7 @@ class DbSqlite(db.Db):
 		elif self.db_cursor:
 			self.db_cursor.execute("SELECT name FROM sqlite_master WHERE type='table' AND name='fuzz_software'")
 			if self.db_cursor.fetchone() is None:
-				self.settings['logger'].critical("Error: the fuzz_software table was not found. Where the testcases generated with dbaction.py?")
+				self.settings['logger'].critical("Error: the fuzz_software table was not found. Where the testcases generated with xdiff_dbaction.py?")
 			else:
 				softwareid = self.save_software(piece)
 		return softwareid
